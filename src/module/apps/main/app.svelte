@@ -426,7 +426,8 @@
             --preview-border-color: var(--color-dark-3);
         }
 
-        #pf2e-request-rolls {
+        .theme-light #pf2e-request-rolls,
+        .application:not([data-theme]) #pf2e-request-rolls {
             --preview-bg-color: #999;
             --preview-border-color: var(--color-dark-3);
         }
@@ -459,6 +460,13 @@
 
         .pf2e-rr--roll-container:not(:last-child) {
             margin-bottom: 0.5em;
+        }
+
+        /* Dorako */
+
+        [data-theme][data-color-scheme="dark"] {
+            --preview-bg-color: #888;
+            --preview-border-color: var(--color-dark-3);
         }
 
         [data-theme][data-dorako-ui-scope="unlimited"] {
