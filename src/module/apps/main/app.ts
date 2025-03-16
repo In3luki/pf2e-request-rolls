@@ -93,7 +93,7 @@ class RequestRolls extends SvelteApplicationMixin<
                     dc: 10,
                     id: fu.randomID(),
                     traits: [],
-                    slug: this.#skillData.skills[0].value,
+                    slug: "perception",
                     type: "check",
                 };
         }
