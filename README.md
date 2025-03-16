@@ -2,7 +2,7 @@
 
 **Project Licensing:**
 
--   All HTML, CSS and Javascript in this project is licensed under version 3 of the GNU General Public License (GPLv3).
+-   All HTML, CSS and Javascript in this project is licensed under the Apache License v2.
 
 **Content Usage and Licensing:**
 
