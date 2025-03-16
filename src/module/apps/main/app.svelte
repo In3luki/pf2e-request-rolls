@@ -60,6 +60,10 @@
     }
 
     function onClickRoll(event: MouseEvent, group: RequestGroup, roll: RequestRoll): void {
+        if (!event.ctrlKey) {
+            event.stopPropagation();
+        }
+
         if (event.shiftKey) {
             const copy = fu.deepClone(roll);
             copy.id = fu.randomID();
@@ -204,7 +208,7 @@
 {#if props.history.length > 0}
     <button
         type="button"
-        class="show-history"
+        class="pf2e-rr--show-history"
         aria-label="show-history"
         data-tooltip={localize("GMDialog.Buttons.ShowHistoryLabel")}
         onclick={() => (showHistory = !showHistory)}
@@ -213,7 +217,7 @@
     </button>
 {/if}
 {#if showHistory && props.history.length > 0}
-    <div class="history" transition:fade>
+    <div class="pf2e-rr--history" transition:fade>
         <div class="header">{localize("GMDialog.HistoryLabel")}</div>
         {#each props.history as item}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -376,7 +380,7 @@
         }
     }
 
-    .history {
+    .pf2e-rr--history {
         position: absolute;
         top: 0px;
         right: -11.5em;
@@ -399,12 +403,12 @@
         }
     }
 
-    button.show-history {
+    button.pf2e-rr--show-history {
         position: absolute;
         top: 2px;
-        right: 2px;
-        width: auto;
-        height: auto;
+        right: 10px;
+        width: 16px;
+        height: 16px;
     }
 
     input {
@@ -422,7 +426,7 @@
             --preview-border-color: var(--color-dark-3);
         }
 
-        .theme-light #pf2e-request-rolls {
+        #pf2e-request-rolls {
             --preview-bg-color: #999;
             --preview-border-color: var(--color-dark-3);
         }
@@ -455,6 +459,17 @@
 
         .pf2e-rr--roll-container:not(:last-child) {
             margin-bottom: 0.5em;
+        }
+
+        [data-theme][data-dorako-ui-scope="unlimited"] {
+            button.pf2e-rr--show-history {
+                top: unset;
+                bottom: 355px;
+            }
+
+            div.pf2e-rr--history {
+                top: 28px;
+            }
         }
     }
 </style>
