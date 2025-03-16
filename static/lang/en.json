@@ -1,0 +1,23 @@
+{
+    "PF2ERequestRolls": {
+        "ContextMenuLabel": "Open PF2e Request Rolls",
+        "GMDialog": {
+            "AdjustmentLabel": "Adjustment",
+            "Buttons": {
+                "ActionLabel": "Add Action",
+                "CheckLabel": "Add Check",
+                "SendToChatLabel": "Send to Chat",
+                "ShowHistoryLabel": "Show History"
+            },
+            "AddGroupButtonTooltip": "Add Group",
+            "ConfirmDeleteRoll": "Delete Roll?",
+            "ConfirmDeleteGroup": "Delete Group?",
+            "GroupHeader": "Group Header",
+            "GroupHeaderPlaceholder": "Enter new group header",
+            "HistoryLabel": "History",
+            "NoContentWarning": "No content to send to chat!",
+            "Title": "Request Rolls",
+            "VariantLabel": "Variant"
+        }
+    }
+}

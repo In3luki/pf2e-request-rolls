@@ -1,0 +1,42 @@
+{
+    "id": "pf2e-request-rolls",
+    "title": "PF2e Request Rolls",
+    "description": "Request rolls from players.",
+    "version": "0.0.1",
+    "compatibility": {
+        "minimum": 12,
+        "verified": "12.331"
+    },
+    "relationships": {
+        "systems": [
+            {
+                "id": "pf2e",
+                "type": "system",
+                "manifest": "https://github.com/foundryvtt/pf2e/releases/latest/download/system.json",
+                "compatibility": {
+                    "minimum": "6"
+                }
+            }
+        ]
+    },
+    "authors": [
+        {
+            "name": "In3luki"
+        }
+    ],
+    "esmodules": ["main.mjs", "vendor.mjs"],
+    "socket": true,
+    "styles": ["main.css"],
+    "languages": [
+        {
+            "lang": "en",
+            "name": "English",
+            "path": "./lang/en.json"
+        }
+    ],
+    "url": "https://github.com/in3luki/pf2e-request-rolls",
+    "bugs": "https://github.com/in3luki/pf2e-request-rolls/issues",
+    "changelog": "https://github.com/in3luki/pf2e-request-rolls/blob/release/CHANGELOG.md",
+    "manifest": "https://github.com/in3luki/pf2e-request-rolls/releases/latest/download/module.json",
+    "download": "https://github.com/in3luki/pf2e-request-rolls/releases/latest/download/pf2e-request-rolls.zip"
+}

@@ -1,0 +1,60 @@
+{
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "lib": [
+            "ESNext",
+            "DOM"
+        ],
+        "noEmit": true,
+        "strict": true,
+        "noFallthroughCasesInSwitch": true,
+        "skipLibCheck": true,
+        "noImplicitOverride": true,
+        "noImplicitReturns": true,
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "allowImportingTsExtensions": true,
+        "forceConsistentCasingInFileNames": true,
+        "esModuleInterop": true,
+        "sourceMap": true,
+        "isolatedModules": true,
+        "baseUrl": ".",
+        "rootDir": ".",
+        "outDir": "dist",
+        "allowUnusedLabels": false,
+        "removeComments": false,
+        "resolveJsonModule": true,
+        "useDefineForClassFields": true,
+        "noErrorTruncation": true,
+        "paths": {
+            "@module/*": [
+                "src/module/*"
+            ],
+            "@util": [
+                "src/util/index.ts"
+            ],
+            "@util/*": [
+                "src/util/*"
+            ],
+            "@pf2e/*": [
+                "node_modules/foundry-pf2e/*"
+            ]
+        },
+        "types": [
+            "jquery",
+            "node"
+        ],
+        "typeRoots": [
+            "node_modules/@types"
+        ]
+    },
+    "watchOptions": {
+        "fallbackPolling": "dynamicpriority",
+        "excludeDirectories": [
+            "dist",
+            "static"
+        ]
+    }
+}
