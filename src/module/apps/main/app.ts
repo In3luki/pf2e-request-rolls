@@ -3,7 +3,7 @@ import type {
     ApplicationRenderOptions,
 } from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
 import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
-import type { ChatMessagePF2e } from "@pf2e/types/index.ts";
+import type { Action, ActionVariant, ChatMessagePF2e } from "@pf2e/types/index.ts";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
@@ -85,7 +85,9 @@ class RequestRolls extends SvelteApplicationMixin<
                 return {
                     dc: 10,
                     id: fu.randomID(),
-                    slug: this.#actions[0].value,
+                    slug: this.#actions[0].slug,
+                    statistic: this.#actions[0].statistic,
+                    variant: this.#actions[0].variants.at(0)?.slug,
                     type: "action",
                 };
             case "check":
@@ -147,8 +149,10 @@ class RequestRolls extends SvelteApplicationMixin<
 
     rollToInline(roll: RequestRoll): string {
         switch (roll.type) {
-            case "action":
-                return `[[/act ${roll.slug}${roll.variant ? ` variant=${roll.variant}` : ""} dc=${roll.dc}${roll.statistic ? ` statistic=${roll.statistic}` : ""}]]`;
+            case "action": {
+                const label = roll.label ? `{${roll.label}}` : "";
+                return `[[/act ${roll.slug}${roll.variant ? ` variant=${roll.variant}` : ""} dc=${roll.dc}${roll.statistic ? ` statistic=${roll.statistic}` : ""}]]${label}`;
+            }
             case "check": {
                 const adjustment = roll.adjustment ? `|adjustment:${roll.adjustment}` : "";
                 const label = roll.label ? `{${roll.label}}` : "";
@@ -164,11 +168,37 @@ class RequestRolls extends SvelteApplicationMixin<
         return TextEditor.enrichHTML(this.rollToInline(roll));
     }
 
-    #prepareActionData(): LabeledValue[] {
-        return game.pf2e.actions.contents.map((action) => ({
-            value: action.slug,
-            label: game.i18n.localize(action.name),
-        }));
+    #prepareActionData(): ActionRenderData[] {
+        const getStatistic = (a: Action | ActionVariant): string | undefined => {
+            if ("statistic" in a && typeof a.statistic === "string") {
+                return a.statistic;
+            }
+            return;
+        };
+
+        return game.pf2e.actions.contents.map((a) => {
+            const data: ActionRenderData = {
+                label: game.i18n.localize(a.name),
+                slug: a.slug,
+                variants: [],
+            };
+            const stat = getStatistic(a);
+            if (stat) {
+                data.statistic = stat;
+            }
+            for (const v of a.variants.contents) {
+                const variant = {
+                    label: game.i18n.localize(v.name ?? ""),
+                    slug: v.slug,
+                };
+                const stat = getStatistic(v);
+                if (stat) {
+                    data.statistic = stat;
+                }
+                data.variants.push(variant);
+            }
+            return data;
+        });
     }
 
     #prepareSkillData(): RequestRollsContext["skills"] {
@@ -226,12 +256,23 @@ class RequestRolls extends SvelteApplicationMixin<
     }
 }
 
+interface ActionRenderData {
+    label: string;
+    slug: string;
+    statistic?: string;
+    variants: {
+        slug: string;
+        label: string;
+        statistic?: string;
+    }[];
+}
+
 interface RequestRollsConfiguration extends ApplicationConfiguration {
     initial?: RequestGroup[];
 }
 
 interface RequestRollsContext extends SvelteApplicationRenderContext {
-    actions: LabeledValue[];
+    actions: ActionRenderData[];
     dcAdjustments: LabeledValue[];
     foundryApp: RequestRolls;
     history: RequestHistory[];
@@ -247,6 +288,7 @@ interface RequestRollsContext extends SvelteApplicationRenderContext {
 interface BaseRoll {
     id: string;
     dc: number;
+    label?: string;
     slug: string;
     type: string;
 }
@@ -259,7 +301,6 @@ interface ActionRoll extends BaseRoll {
 
 interface CheckRoll extends BaseRoll {
     adjustment?: number;
-    label?: string;
     traits: string[];
     type: "check";
 }
