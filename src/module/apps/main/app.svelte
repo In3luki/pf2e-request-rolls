@@ -10,6 +10,7 @@
         RequestRoll,
         RequestRollsContext,
     } from "./app.ts";
+    import { htmlClosest, htmlQuery } from "@util";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
 
@@ -59,6 +60,19 @@
         const action = props.actions.find((a) => a.slug === roll.slug);
         roll.variant = action?.variants.at(0)?.slug;
         roll.statistic = action?.statistic;
+    }
+
+    function onInputLabel(event: Event & { currentTarget: HTMLInputElement }, roll: RequestRoll): void {
+        const value = event.currentTarget.value;
+        if (!value.includes("$")) {
+            roll.label = value;
+            return;
+        }
+        const actions = htmlQuery<HTMLSelectElement>(htmlClosest(event.currentTarget, ".edit"), "select[name=actions]");
+        const skills = htmlQuery<HTMLSelectElement>(htmlClosest(event.currentTarget, ".edit"), "select[name=skills]");
+        roll.label = value
+            .replaceAll("$a", actions?.selectedOptions[0]?.innerHTML ?? "")
+            .replaceAll("$s", skills?.selectedOptions[0]?.innerHTML ?? "");
     }
 
     function onClickRoll(event: MouseEvent, group: RequestGroup, roll: RequestRoll): void {
@@ -233,7 +247,7 @@
     {@const action = props.actions.find((a) => a.slug === roll.slug) ?? { variants: [] }}
     <div class="form-group">
         <label for="action-select-{roll.id}">{game.i18n.localize("PF2E.ActionTypeAction")}:</label>
-        <select id="action-select-{roll.id}" value={roll.slug} onchange={(e) => onChangeAction(e, roll)}>
+        <select id="action-select-{roll.id}" name="actions" value={roll.slug} onchange={(e) => onChangeAction(e, roll)}>
             {#each props.actions as action}
                 <option value={action.slug}>{action.label}</option>
             {/each}
@@ -253,7 +267,7 @@
     </div>
     <div class="form-group">
         <label for="action-statistic-{roll.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
-        <select id="action-statistic-{roll.id}" bind:value={roll.statistic}>
+        <select id="action-statistic-{roll.id}" name="skills" bind:value={roll.statistic}>
             <option value=""></option>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
             {#each Object.entries(props.skills) as [key, data]}
@@ -271,7 +285,7 @@
             id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            bind:value={roll.label}
+            oninput={(e) => onInputLabel(e, roll)}
         />
     </div>
 {/snippet}
@@ -279,7 +293,7 @@
 {#snippet check(roll: CheckRoll)}
     <div class="form-group">
         <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
-        <select id="check-select-{roll.id}" bind:value={roll.slug}>
+        <select id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
             {#each Object.entries(props.skills) as [key, data]}
                 <optgroup label={skillKeyToLabel[key]}>
@@ -313,7 +327,7 @@
             id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            bind:value={roll.label}
+            oninput={(e) => onInputLabel(e, roll)}
         />
     </div>
     <div class="form-group">
