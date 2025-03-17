@@ -1,3 +1,9 @@
+## 0.1.1
+
+### Enhancements
+
+-   Improve action handling and select default variant and statistic where possible ([#10](https://github.com/In3luki/pf2e-request-rolls/pull/10))
+
 ## 0.1.0
 
 ### New Features
