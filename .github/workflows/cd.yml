@@ -2,7 +2,7 @@ name: PF2e Request Rolls CD
 
 on:
   workflow_dispatch:
-    branches: [release]
+    branches: [master]
 
 jobs:
   release:
