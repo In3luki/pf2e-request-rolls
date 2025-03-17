@@ -18,8 +18,6 @@
     let selectedGroupId = $state(requests[0]?.id ?? "");
     let selectedGroup = $derived(requests.find((r) => r.id === selectedGroupId) ?? requests[0]);
     let selectedRollId: string | null = $state(null);
-    let actionVariantSlug: string | undefined = $state(props.actions.at(0)?.value);
-    let actionVariants: [string, string][] = $derived(getActionVariants(actionVariantSlug));
     let editing = $derived(selectedGroup.rolls.find((r) => r.id === selectedRollId));
     let showHistory = $state(false);
 
@@ -47,12 +45,6 @@
         event.currentTarget.select();
     }
 
-    function getActionVariants(slug?: string): [string, string][] {
-        if (!slug) return [];
-        const variants = game.pf2e.actions.get(slug)?.variants ?? [];
-        return variants.map((v) => [v.slug, game.i18n.localize(v.name ?? "")]) as [string, string][];
-    }
-
     function selectTraits(selections: { label: string; value: string }[], roll: CheckRoll): void {
         roll.traits = selections.map((s) => s.value);
     }
@@ -60,6 +52,13 @@
     function loadHistory(item: RequestHistory): void {
         untrack(() => (requests.length = 0));
         requests.push(...fu.deepClone(item.groups));
+    }
+
+    function onChangeAction(event: Event & { currentTarget: HTMLSelectElement }, roll: ActionRoll): void {
+        roll.slug = event.currentTarget.value;
+        const action = props.actions.find((a) => a.slug === roll.slug);
+        roll.variant = action?.variants.at(0)?.slug;
+        roll.statistic = action?.statistic;
     }
 
     function onClickRoll(event: MouseEvent, group: RequestGroup, roll: RequestRoll): void {
@@ -75,15 +74,6 @@
             return;
         }
         switchActive(group, roll);
-    }
-
-    function onChangeAction(roll: ActionRoll): void {
-        actionVariantSlug = roll.slug;
-        if (actionVariants.length === 0) {
-            roll.variant = undefined;
-        } else {
-            roll.variant = actionVariants[0][0];
-        }
     }
 
     function switchActive(group: RequestGroup, roll?: RequestRoll): void {
@@ -240,19 +230,20 @@
 {/if}
 
 {#snippet action(roll: ActionRoll)}
+    {@const action = props.actions.find((a) => a.slug === roll.slug) ?? { variants: [] }}
     <div class="form-group">
         <label for="action-select-{roll.id}">{game.i18n.localize("PF2E.ActionTypeAction")}:</label>
-        <select id="action-select-{roll.id}" bind:value={roll.slug} onchange={() => onChangeAction(roll)}>
+        <select id="action-select-{roll.id}" value={roll.slug} onchange={(e) => onChangeAction(e, roll)}>
             {#each props.actions as action}
-                <option value={action.value}>{action.label}</option>
+                <option value={action.slug}>{action.label}</option>
             {/each}
         </select>
     </div>
     <div class="form-group">
         <label for="action-variant-{roll.id}">{localize("GMDialog.VariantLabel")}:</label>
-        <select id="action-variant-{roll.id}" disabled={actionVariants.length === 0} bind:value={roll.variant}>
-            {#each actionVariants as [slug, label]}
-                <option value={slug}>{label}</option>
+        <select id="action-variant-{roll.id}" disabled={action.variants.length === 0} bind:value={roll.variant}>
+            {#each action.variants as variant}
+                <option value={variant.slug}>{variant.label}</option>
             {/each}
         </select>
     </div>
@@ -274,12 +265,21 @@
             {/each}
         </select>
     </div>
+    <div class="form-group">
+        <label for="check-label-{roll.id}">{localize("GMDialog.Label")}:</label>
+        <input
+            id="check-label-{roll.id}"
+            type="text"
+            placeholder={localize("GMDialog.LabelPlaceholder")}
+            bind:value={roll.label}
+        />
+    </div>
 {/snippet}
 
-{#snippet check(data: CheckRoll)}
+{#snippet check(roll: CheckRoll)}
     <div class="form-group">
-        <label for="check-select-{data.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
-        <select id="check-select-{data.id}" bind:value={data.slug}>
+        <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
+        <select id="check-select-{roll.id}" bind:value={roll.slug}>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
             {#each Object.entries(props.skills) as [key, data]}
                 <optgroup label={skillKeyToLabel[key]}>
@@ -291,7 +291,7 @@
         </select>
     </div>
     <div class="form-group">
-        <label for="check-traits-{data.id}">{game.i18n.localize("PF2E.TraitsLabel")}:</label>
+        <label for="check-traits-{roll.id}">{game.i18n.localize("PF2E.TraitsLabel")}:</label>
         <TraitsSelect
             options={props.traits}
             multiple
@@ -299,26 +299,26 @@
             clearable
             creatable={false}
             placeholder={game.i18n.localize("PF2E.SelectLabel")}
-            value={data.traits}
-            onChange={(selections) => selectTraits(selections, data)}
+            value={roll.traits}
+            onChange={(selections) => selectTraits(selections, roll)}
         />
     </div>
     <div class="form-group">
-        <label for="check-dc-{data.id}">{game.i18n.localize("PF2E.Check.DC.Unspecific")}:</label>
-        <input id="check-dc-{data.id}" type="number" bind:value={data.dc} onfocus={selectText} />
+        <label for="check-dc-{roll.id}">{game.i18n.localize("PF2E.Check.DC.Unspecific")}:</label>
+        <input id="check-dc-{roll.id}" type="number" bind:value={roll.dc} onfocus={selectText} />
     </div>
     <div class="form-group">
-        <label for="check-label-{data.id}">{localize("GMDialog.Label")}:</label>
+        <label for="check-label-{roll.id}">{localize("GMDialog.Label")}:</label>
         <input
-            id="check-label-{data.id}"
+            id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            bind:value={data.label}
+            bind:value={roll.label}
         />
     </div>
     <div class="form-group">
-        <label for="check-adjustment-{data.id}">{localize("GMDialog.AdjustmentLabel")}:</label>
-        <select id="check-adjustment-{data.id}" bind:value={data.adjustment}>
+        <label for="check-adjustment-{roll.id}">{localize("GMDialog.AdjustmentLabel")}:</label>
+        <select id="check-adjustment-{roll.id}" bind:value={roll.adjustment}>
             <option value="0"></option>
             {#each props.dcAdjustments as adjustment}
                 <option value={adjustment.value}>{adjustment.label}</option>

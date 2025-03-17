@@ -16,7 +16,7 @@
             "GroupHeaderPlaceholder": "Enter optional group header",
             "HistoryLabel": "History",
             "Label": "Label",
-            "LabelPlaceholder": "Enter optional check label",
+            "LabelPlaceholder": "Enter optional label",
             "NoContentWarning": "No content to send to chat!",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
