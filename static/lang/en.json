@@ -13,8 +13,10 @@
             "ConfirmDeleteRoll": "Delete Roll?",
             "ConfirmDeleteGroup": "Delete Group?",
             "GroupHeader": "Group Header",
-            "GroupHeaderPlaceholder": "Enter new group header",
+            "GroupHeaderPlaceholder": "Enter optional group header",
             "HistoryLabel": "History",
+            "Label": "Label",
+            "LabelPlaceholder": "Enter optional check label",
             "NoContentWarning": "No content to send to chat!",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"

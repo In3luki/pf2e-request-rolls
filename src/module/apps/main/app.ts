@@ -17,7 +17,7 @@ class RequestRolls extends SvelteApplicationMixin<
         id: "pf2e-request-rolls",
         position: {
             width: 700,
-            height: 400,
+            height: 410,
         },
         window: {
             icon: "fa-solid fa-dice",
@@ -151,8 +151,9 @@ class RequestRolls extends SvelteApplicationMixin<
                 return `[[/act ${roll.slug}${roll.variant ? ` variant=${roll.variant}` : ""} dc=${roll.dc}${roll.statistic ? ` statistic=${roll.statistic}` : ""}]]`;
             case "check": {
                 const adjustment = roll.adjustment ? `|adjustment:${roll.adjustment}` : "";
+                const label = roll.label ? `{${roll.label}}` : "";
                 const traits = roll.traits.length ? `|traits:${roll.traits}` : "";
-                return `@Check[${roll.slug}|dc:${roll.dc}${adjustment}${traits}]`;
+                return `@Check[${roll.slug}|dc:${roll.dc}${adjustment}${traits}]${label}`;
             }
             default:
                 return "";
@@ -258,6 +259,7 @@ interface ActionRoll extends BaseRoll {
 
 interface CheckRoll extends BaseRoll {
     adjustment?: number;
+    label?: string;
     traits: string[];
     type: "check";
 }
