@@ -11,7 +11,7 @@
         RequestRollsContext,
     } from "./app.ts";
     import { localize } from "@util/misc.ts";
-    import TraitsSelect from "../traits/traits-select.svelte";
+    import TraitsSelect from "@module/components/traits/traits-select.svelte";
 
     const props: RequestRollsContext = $props();
     const requests: RequestGroup[] = $state(props.initial);
@@ -297,6 +297,15 @@
         <input id="check-dc-{data.id}" type="number" bind:value={data.dc} onfocus={selectText} />
     </div>
     <div class="form-group">
+        <label for="check-label-{data.id}">{localize("GMDialog.Label")}:</label>
+        <input
+            id="check-label-{data.id}"
+            type="text"
+            placeholder={localize("GMDialog.LabelPlaceholder")}
+            bind:value={data.label}
+        />
+    </div>
+    <div class="form-group">
         <label for="check-adjustment-{data.id}">{localize("GMDialog.AdjustmentLabel")}:</label>
         <select id="check-adjustment-{data.id}" bind:value={data.adjustment}>
             <option value="0"></option>
@@ -311,7 +320,7 @@
     .container {
         display: grid;
         grid-template-columns: 1fr 0.95fr;
-        height: 285px;
+        height: 300px;
     }
 
     .edit {
@@ -353,7 +362,7 @@
                 margin-bottom: 0.3em;
 
                 &.active {
-                    border: 0.1em dashed var(--preview-border-color);
+                    border: 0.1em dashed var(--pf2e-rr--preview-border-color);
                 }
             }
         }
@@ -373,8 +382,8 @@
 
         .request-container {
             padding: 0.3em;
-            background-color: var(--preview-bg-color);
-            border: 1px solid var(--preview-border-color);
+            background-color: var(--pf2e-rr--preview-bg-color);
+            border: 1px solid var(--pf2e-rr--preview-border-color);
             border-radius: 4px;
             margin-bottom: 0.5em;
         }
@@ -382,11 +391,13 @@
 
     .pf2e-rr--history {
         position: absolute;
-        top: 0px;
+        top: 36px;
         right: -11.5em;
         padding: 10px;
 
         background: var(--background);
+        border: 1px solid var(--pf2e-rr--preview-border-color);
+        border-radius: 4px;
 
         .header {
             text-align: center;
@@ -398,14 +409,14 @@
             cursor: pointer;
 
             &:hover {
-                text-shadow: 0 0 8px var(--color-shadow-primary);
+                text-shadow: 0 0 8px #ff0000;
             }
         }
     }
 
     button.pf2e-rr--show-history {
         position: absolute;
-        top: 2px;
+        top: 40px;
         right: 10px;
         width: 16px;
         height: 16px;
@@ -422,14 +433,22 @@
     :global {
         .theme-dark #pf2e-request-rolls {
             --visibility-gm-bg: var(--color-dark-6);
-            --preview-bg-color: var(--color-dark-2);
-            --preview-border-color: var(--color-dark-3);
+            --pf2e-rr--preview-bg-color: var(--color-dark-2);
+            --pf2e-rr--preview-border-color: var(--color-dark-3);
+
+            button.pf2e-rr--show-history {
+                top: 2px;
+            }
+
+            .pf2e-rr--history {
+                top: 0px;
+            }
         }
 
         .theme-light #pf2e-request-rolls,
         .application:not([data-theme]) #pf2e-request-rolls {
-            --preview-bg-color: #999;
-            --preview-border-color: var(--color-dark-3);
+            --pf2e-rr--preview-bg-color: #999;
+            --pf2e-rr--preview-border-color: var(--color-dark-3);
         }
 
         #pf2e-request-rolls {
@@ -462,21 +481,26 @@
             margin-bottom: 0.5em;
         }
 
-        /* Dorako */
+        /* DorakoUI */
 
         [data-theme][data-color-scheme="dark"] {
-            --preview-bg-color: #888;
-            --preview-border-color: var(--color-dark-3);
+            --pf2e-rr--preview-bg-color: #888;
+            --pf2e-rr--preview-border-color: var(--color-dark-3);
+        }
+
+        [data-theme][data-color-scheme="light"] {
+            --pf2e-rr--preview-bg-color: #999;
+            --pf2e-rr--preview-border-color: var(--color-dark-3);
         }
 
         [data-theme][data-dorako-ui-scope="unlimited"] {
             button.pf2e-rr--show-history {
-                top: unset;
-                bottom: 355px;
+                top: 28px;
             }
 
             div.pf2e-rr--history {
                 top: 28px;
+                background: var(--window-app-background);
             }
         }
     }
