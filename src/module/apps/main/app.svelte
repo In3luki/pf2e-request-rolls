@@ -18,6 +18,8 @@
     let selectedGroupId = $state(requests[0]?.id ?? "");
     let selectedGroup = $derived(requests.find((r) => r.id === selectedGroupId) ?? requests[0]);
     let selectedRollId: string | null = $state(null);
+    let actionVariantSlug: string | undefined = $state(props.actions.at(0)?.value);
+    let actionVariants: [string, string][] = $derived(getActionVariants(actionVariantSlug));
     let editing = $derived(selectedGroup.rolls.find((r) => r.id === selectedRollId));
     let showHistory = $state(false);
 
@@ -45,7 +47,8 @@
         event.currentTarget.select();
     }
 
-    function getActionVariants(slug: string): [string, string][] {
+    function getActionVariants(slug?: string): [string, string][] {
+        if (!slug) return [];
         const variants = game.pf2e.actions.get(slug)?.variants ?? [];
         return variants.map((v) => [v.slug, game.i18n.localize(v.name ?? "")]) as [string, string][];
     }
@@ -72,6 +75,15 @@
             return;
         }
         switchActive(group, roll);
+    }
+
+    function onChangeAction(roll: ActionRoll): void {
+        actionVariantSlug = roll.slug;
+        if (actionVariants.length === 0) {
+            roll.variant = undefined;
+        } else {
+            roll.variant = actionVariants[0][0];
+        }
     }
 
     function switchActive(group: RequestGroup, roll?: RequestRoll): void {
@@ -227,31 +239,30 @@
     </div>
 {/if}
 
-{#snippet action(data: ActionRoll)}
+{#snippet action(roll: ActionRoll)}
     <div class="form-group">
-        <label for="action-select-{data.id}">{game.i18n.localize("PF2E.ActionTypeAction")}:</label>
-        <select id="action-select-{data.id}" bind:value={data.slug} onchange={() => (data.variant = undefined)}>
+        <label for="action-select-{roll.id}">{game.i18n.localize("PF2E.ActionTypeAction")}:</label>
+        <select id="action-select-{roll.id}" bind:value={roll.slug} onchange={() => onChangeAction(roll)}>
             {#each props.actions as action}
                 <option value={action.value}>{action.label}</option>
             {/each}
         </select>
     </div>
     <div class="form-group">
-        <label for="action-variant-{data.id}">{localize("GMDialog.VariantLabel")}:</label>
-        <select id="action-variant-{data.id}" bind:value={data.variant}>
-            <option value=""></option>
-            {#each getActionVariants(data.slug) as [slug, label]}
+        <label for="action-variant-{roll.id}">{localize("GMDialog.VariantLabel")}:</label>
+        <select id="action-variant-{roll.id}" disabled={actionVariants.length === 0} bind:value={roll.variant}>
+            {#each actionVariants as [slug, label]}
                 <option value={slug}>{label}</option>
             {/each}
         </select>
     </div>
     <div class="form-group">
-        <label for="action-dc-{data.id}">{game.i18n.localize("PF2E.Check.DC.Unspecific")}</label>
-        <input id="action-dc-{data.id}" type="number" placeholder="0" bind:value={data.dc} onfocus={selectText} />
+        <label for="action-dc-{roll.id}">{game.i18n.localize("PF2E.Check.DC.Unspecific")}</label>
+        <input id="action-dc-{roll.id}" type="number" placeholder="0" bind:value={roll.dc} onfocus={selectText} />
     </div>
     <div class="form-group">
-        <label for="action-statistic-{data.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
-        <select id="action-statistic-{data.id}" bind:value={data.statistic}>
+        <label for="action-statistic-{roll.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
+        <select id="action-statistic-{roll.id}" bind:value={roll.statistic}>
             <option value=""></option>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
             {#each Object.entries(props.skills) as [key, data]}
