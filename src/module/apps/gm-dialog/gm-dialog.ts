@@ -9,6 +9,7 @@ import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
 import { actionData, hasNoContent, rollToInline, skillData } from "../helpers.ts";
+import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
 
@@ -141,12 +142,24 @@ class GMDialog extends SvelteApplicationMixin<
             return;
         }
 
+        const players: PlayerSelection[] = game.users.players.flatMap((u) =>
+            u.active && u.character ? { id: u.id, name: u.character.name, checked: true } : [],
+        );
+        if (players.length === 0) return;
+
+        const { promise, resolve } = Promise.withResolvers<string[]>();
+        new SelectPlayersDialog({ players, resolve }).render({ force: true });
+        const users = await promise;
+        if (users.length === 0) return;
+
         const message: SocketRollRequest = {
             id: fu.randomID(),
             groups,
-            users: game.users.players.flatMap((u) => (u.active ? u.id : [])),
+            users,
         };
+
         game.socket.emit("module.pf2e-request-rolls", message);
+        ui.notifications.info("PF2ERequestRolls.GMDialog.RequestSuccessful", { localize: true });
 
         await this.#updateHistory(groups);
     }

@@ -21,7 +21,10 @@ Hooks.once("ready", () => {
     game.socket.on("module.pf2e-request-rolls", (request: SocketRollRequest, userId: string) => {
         const sender = game.users.get(userId, { strict: true });
         if (!sender.isGM) return;
-        new RollDialog({ request }).render({ force: true });
+
+        if (request.users.includes(game.user.id)) {
+            new RollDialog({ request }).render({ force: true });
+        }
     });
 });
 

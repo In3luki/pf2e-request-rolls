@@ -19,11 +19,16 @@
             "Label": "Label",
             "LabelPlaceholder": "Enter optional label",
             "NoContentWarning": "Request has no content!",
+            "RequestSuccessful": "Successfully requested rolls",
+            "SelectPlayersLabel": "Select Players",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
         },
         "RollDialog": {
             "Title": "Requested Rolls"
+        },
+        "SelectPlayersDialog": {
+            "Title": "Select Players"
         }
     }
 }
