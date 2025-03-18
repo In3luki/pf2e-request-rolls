@@ -1,7 +1,11 @@
-import { RequestRolls } from "@module/apps/main/app.ts";
+import { GMDialog, RollDialog } from "@module/apps/index.ts";
+import type { SocketRollRequest } from "@module/apps/types.ts";
 import * as R from "remeda";
 
-globalThis.PF2eRequestRolls = RequestRolls;
+globalThis.requestRolls = {
+    GMDialog,
+    RollDialog,
+};
 
 Hooks.once("init", () => {
     game.settings.register("pf2e-request-rolls", "history", {
@@ -9,6 +13,14 @@ Hooks.once("init", () => {
         config: false,
         type: Array,
         default: [],
+    });
+});
+
+Hooks.once("ready", () => {
+    game.socket.on("module.pf2e-request-rolls", (request: SocketRollRequest, userId: string) => {
+        const sender = game.users.get(userId, { strict: true });
+        if (!sender.isGM) return;
+        new RollDialog({ request }).render({ force: true });
     });
 });
 
@@ -23,7 +35,7 @@ Hooks.on("getChatLogEntryContext", (_chatlog, options) => {
         },
         callback: ($li) => {
             const message = game.messages.get($li[0].dataset.messageId, { strict: true });
-            PF2eRequestRolls.fromMessage(message);
+            GMDialog.fromMessage(message);
         },
     });
 });

@@ -2,19 +2,14 @@
     import { untrack } from "svelte";
     import { fade } from "svelte/transition";
     import dayjs from "dayjs";
-    import type {
-        ActionRoll,
-        CheckRoll,
-        RequestGroup,
-        RequestHistory,
-        RequestRoll,
-        RequestRollsContext,
-    } from "./app.ts";
+    import type { GMDialogContext } from "./gm-dialog.ts";
+    import type { ActionRoll, CheckRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
     import { htmlClosest, htmlQuery } from "@util";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
+    import { rollToInline } from "../helpers.ts";
 
-    const props: RequestRollsContext = $props();
+    const props: GMDialogContext = $props();
     const requests: RequestGroup[] = $state(props.initial);
     let selectedGroupId = $state(requests[0]?.id ?? "");
     let selectedGroup = $derived(requests.find((r) => r.id === selectedGroupId) ?? requests[0]);
@@ -190,7 +185,7 @@
                 </div>
                 <div class="rolls">
                     {#each request.rolls as roll}
-                        {#await props.foundryApp.renderRoll(roll)}
+                        {#await TextEditor.enrichHTML(rollToInline(roll))}
                             <div>Loading...</div>
                         {:then rollHTML}
                             <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -216,6 +211,9 @@
     </div>
 </div>
 <div class="submit-buttons">
+    <button type="button" onclick={() => props.foundryApp.sendToSocket($state.snapshot(requests))}>
+        {localize("GMDialog.Buttons.RequestRollsLabel")}
+    </button>
     <button type="button" onclick={() => props.foundryApp.sendToChat($state.snapshot(requests))}>
         {localize("GMDialog.Buttons.SendToChatLabel")}
     </button>
@@ -346,6 +344,10 @@
         display: grid;
         grid-template-columns: 1fr 0.95fr;
         height: 300px;
+    }
+
+    .submit-buttons {
+        display: flex;
     }
 
     .edit {

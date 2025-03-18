@@ -6,6 +6,7 @@
             "Buttons": {
                 "ActionLabel": "Add Action",
                 "CheckLabel": "Add Check",
+                "RequestRollsLabel": "Request Rolls",
                 "SendToChatLabel": "Send to Chat",
                 "ShowHistoryLabel": "Show History"
             },
@@ -17,9 +18,12 @@
             "HistoryLabel": "History",
             "Label": "Label",
             "LabelPlaceholder": "Enter optional label",
-            "NoContentWarning": "No content to send to chat!",
+            "NoContentWarning": "Request has no content!",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
+        },
+        "RollDialog": {
+            "Title": "Requested Rolls"
         }
     }
 }
