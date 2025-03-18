@@ -1,3 +1,4 @@
+import { prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRollRequest } from "@module/apps/types.ts";
 import * as R from "remeda";
@@ -22,6 +23,11 @@ Hooks.once("ready", () => {
         if (!sender.isGM) return;
         new RollDialog({ request }).render({ force: true });
     });
+});
+
+Hooks.once("pf2e.systemReady", () => {
+    prepareActionData();
+    prepareSkillData();
 });
 
 Hooks.on("getChatLogEntryContext", (_chatlog, options) => {

@@ -4,7 +4,6 @@
     import dayjs from "dayjs";
     import type { GMDialogContext } from "./gm-dialog.ts";
     import type { ActionRoll, CheckRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
-    import { htmlClosest, htmlQuery } from "@util";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
     import { rollToInline } from "../helpers.ts";
@@ -55,19 +54,6 @@
         const action = props.actions.find((a) => a.slug === roll.slug);
         roll.variant = action?.variants.at(0)?.slug;
         roll.statistic = action?.statistic;
-    }
-
-    function onInputLabel(event: Event & { currentTarget: HTMLInputElement }, roll: RequestRoll): void {
-        const value = event.currentTarget.value;
-        if (!value.includes("$")) {
-            roll.label = value;
-            return;
-        }
-        const actions = htmlQuery<HTMLSelectElement>(htmlClosest(event.currentTarget, ".edit"), "select[name=actions]");
-        const skills = htmlQuery<HTMLSelectElement>(htmlClosest(event.currentTarget, ".edit"), "select[name=skills]");
-        roll.label = value
-            .replaceAll("$a", actions?.selectedOptions[0]?.innerHTML ?? "")
-            .replaceAll("$s", skills?.selectedOptions[0]?.innerHTML ?? "");
     }
 
     function onClickRoll(event: MouseEvent, group: RequestGroup, roll: RequestRoll): void {
@@ -283,7 +269,7 @@
             id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            oninput={(e) => onInputLabel(e, roll)}
+            bind:value={roll.label}
         />
     </div>
 {/snippet}
@@ -325,7 +311,7 @@
             id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            oninput={(e) => onInputLabel(e, roll)}
+            bind:value={roll.label}
         />
     </div>
     <div class="form-group">

@@ -3,12 +3,12 @@ import type {
     ApplicationRenderOptions,
 } from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
 import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
-import type { Action, ActionVariant, ChatMessagePF2e } from "@pf2e/types/index.ts";
+import type { ChatMessagePF2e } from "@pf2e/types/index.ts";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import { hasNoContent, rollToInline } from "../helpers.ts";
+import { actionData, hasNoContent, rollToInline, skillData } from "../helpers.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
 
@@ -34,10 +34,6 @@ class GMDialog extends SvelteApplicationMixin<
 
     protected root = Root;
 
-    #actions = this.#prepareActionData();
-
-    #skillData = this.#prepareSkillData();
-
     static fromMessage(message: ChatMessagePF2e): void {
         const groups: RequestGroup[] | undefined = fu.getProperty(message.flags, "pf2e-request-rolls.groups");
         if (!groups) return;
@@ -46,12 +42,12 @@ class GMDialog extends SvelteApplicationMixin<
 
     protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<GMDialogContext> {
         return {
-            actions: this.#actions,
+            actions: actionData,
             dcAdjustments: this.#prepareDCAdjustments(),
             foundryApp: this,
             history: fu.deepClone(game.settings.get("pf2e-request-rolls", "history")).reverse(),
             initial: this.options.initial ?? [this.getNewGroupData()],
-            skills: this.#skillData,
+            skills: skillData,
             state: {},
             traits: R.entries(sortStringRecord(CONFIG.PF2E.actionTraits)).map(([value, label]) => ({
                 label,
@@ -84,9 +80,9 @@ class GMDialog extends SvelteApplicationMixin<
                 return {
                     dc: 10,
                     id: fu.randomID(),
-                    slug: this.#actions[0].slug,
-                    statistic: this.#actions[0].statistic,
-                    variant: this.#actions[0].variants.at(0)?.slug,
+                    slug: actionData[0].slug,
+                    statistic: actionData[0].statistic,
+                    variant: actionData[0].variants.at(0)?.slug,
                     type: "action",
                 };
             case "check":
@@ -137,7 +133,6 @@ class GMDialog extends SvelteApplicationMixin<
         });
 
         await this.#updateHistory(groups);
-        this.close();
     }
 
     async sendToSocket(groups: RequestGroup[]): Promise<void> {
@@ -154,7 +149,6 @@ class GMDialog extends SvelteApplicationMixin<
         game.socket.emit("module.pf2e-request-rolls", message);
 
         await this.#updateHistory(groups);
-        this.close();
     }
 
     async #updateHistory(groups: RequestGroup[]): Promise<void> {
@@ -165,72 +159,6 @@ class GMDialog extends SvelteApplicationMixin<
             time: Date.now(),
         });
         await game.settings.set("pf2e-request-rolls", "history", R.takeLast(history, 10));
-    }
-
-    #prepareActionData(): ActionRenderData[] {
-        const getStatistic = (a: Action | ActionVariant): string | undefined => {
-            if ("statistic" in a && typeof a.statistic === "string") {
-                return a.statistic;
-            }
-            return;
-        };
-
-        return game.pf2e.actions.contents.map((a) => {
-            const data: ActionRenderData = {
-                label: game.i18n.localize(a.name),
-                slug: a.slug,
-                variants: [],
-            };
-            const stat = getStatistic(a);
-            if (stat) {
-                data.statistic = stat;
-            }
-            for (const v of a.variants.contents) {
-                const variant = {
-                    label: game.i18n.localize(v.name ?? ""),
-                    slug: v.slug,
-                };
-                const stat = getStatistic(v);
-                if (stat) {
-                    data.statistic = stat;
-                }
-                data.variants.push(variant);
-            }
-            return data;
-        });
-    }
-
-    #prepareSkillData(): GMDialogContext["skills"] {
-        const lores = new Map<string, string>();
-        const loreToCharacters = new Map<string, string[]>();
-
-        for (const character of game.actors.filter((a) => a.hasPlayerOwner && a.type !== "familiar")) {
-            for (const [slug, statistic] of Object.entries(character.skills ?? {})) {
-                if (!statistic.lore) continue;
-                lores.set(slug, statistic.label);
-                if (loreToCharacters.has(slug)) {
-                    loreToCharacters.get(slug)?.push(character.name);
-                } else {
-                    loreToCharacters.set(slug, [character.name]);
-                }
-            }
-        }
-        for (const [slug, label] of lores) {
-            const characters = loreToCharacters.get(slug);
-            if (!characters) {
-                console.warn(`Found lore skill without a character!? ${slug} (${label})`);
-                continue;
-            }
-            lores.set(slug, `${label} (${characters.join(", ")})`);
-        }
-
-        return {
-            skills: R.entries(CONFIG.PF2E.skills)
-                .map(([value, s]) => ({ label: game.i18n.localize(s.label), value }))
-                .sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang)),
-            lores: [...lores.entries()].map(([value, label]) => ({ value, label })),
-            saves: R.entries(sortStringRecord(CONFIG.PF2E.saves)).map(([value, label]) => ({ value, label })),
-        };
     }
 
     #prepareDCAdjustments(): LabeledValue[] {
@@ -285,4 +213,4 @@ interface GMDialogContext extends SvelteApplicationRenderContext {
 }
 
 export { GMDialog };
-export type { GMDialogContext };
+export type { ActionRenderData, GMDialogContext };
