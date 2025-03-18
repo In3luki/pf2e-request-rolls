@@ -1,17 +1,22 @@
 /// <reference types="vite/client" />
 /// <reference types="foundry-pf2e" />
 
-import { type RequestGroup, RequestHistory, RequestRolls } from "@module/apps/main/app.ts";
+import { GMDialog, RollDialog } from "@module/apps/index.ts";
+import type { RequestGroup, RequestHistory } from "@module/apps/types.ts";
 
 declare global {
     namespace globalThis {
-        /* eslint-disable no-var */
-        var PF2eRequestRolls: typeof RequestRolls;
-        /* eslint-enable no-var */
+        // eslint-disable-next-line no-var
+        var requestRolls: RequestRollsGlobal;
     }
 
     interface ClientSettings {
         get(module: "pf2e-request-rolls", setting: "history"): RequestHistory[];
         set(module: "pf2e-request-rolls", setting: "history", value: RequestGroup[]): Promise<RequestHistory[]>;
     }
+}
+
+interface RequestRollsGlobal {
+    GMDialog: typeof GMDialog;
+    RollDialog: typeof RollDialog;
 }

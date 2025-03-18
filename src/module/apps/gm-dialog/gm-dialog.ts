@@ -8,12 +8,14 @@ import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import Root from "./app.svelte";
+import { hasNoContent, rollToInline } from "../helpers.ts";
+import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
+import Root from "./gm-dialog.svelte";
 
-class RequestRolls extends SvelteApplicationMixin<
-    AbstractConstructorOf<ApplicationV2> & { DEFAULT_OPTIONS: DeepPartial<RequestRollsConfiguration> }
+class GMDialog extends SvelteApplicationMixin<
+    AbstractConstructorOf<ApplicationV2> & { DEFAULT_OPTIONS: DeepPartial<GMDialogConfiguration> }
 >(foundry.applications.api.ApplicationV2) {
-    static override DEFAULT_OPTIONS: DeepPartial<RequestRollsConfiguration> = {
+    static override DEFAULT_OPTIONS: DeepPartial<GMDialogConfiguration> = {
         id: "pf2e-request-rolls",
         position: {
             width: 700,
@@ -27,8 +29,8 @@ class RequestRolls extends SvelteApplicationMixin<
         },
     };
 
-    declare options: RequestRollsConfiguration;
-    declare $state: RequestRollsContext["state"];
+    declare options: GMDialogConfiguration;
+    declare $state: GMDialogContext["state"];
 
     protected root = Root;
 
@@ -42,7 +44,7 @@ class RequestRolls extends SvelteApplicationMixin<
         new this({ initial: groups }).render({ force: true });
     }
 
-    protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<RequestRollsContext> {
+    protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<GMDialogContext> {
         return {
             actions: this.#actions,
             dcAdjustments: this.#prepareDCAdjustments(),
@@ -76,9 +78,6 @@ class RequestRolls extends SvelteApplicationMixin<
         };
     }
 
-    getNewRollData(type: "action"): ActionRoll;
-    getNewRollData(type: "check"): CheckRoll;
-    getNewRollData(type: RequestRoll["type"]): RequestRoll;
     getNewRollData(type: RequestRoll["type"]): RequestRoll {
         switch (type) {
             case "action":
@@ -98,11 +97,17 @@ class RequestRolls extends SvelteApplicationMixin<
                     slug: "perception",
                     type: "check",
                 };
+            default:
+                throw Error(`Unknown type ${type}`);
         }
     }
 
     async sendToChat(groups: RequestGroup[]): Promise<void> {
-        let hasContent = false;
+        if (hasNoContent(groups)) {
+            ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
+            return;
+        }
+
         const container = document.createElement("div");
         container.classList.add("pf2e-rr--container");
         for (const group of groups) {
@@ -113,20 +118,13 @@ class RequestRolls extends SvelteApplicationMixin<
                 const strong = document.createElement("strong");
                 strong.innerHTML = group.title;
                 header.appendChild(strong);
-                hasContent = true;
             }
             const div = document.createElement("div");
             div.classList.add("pf2e-rr--roll-container");
             container.appendChild(div);
             for (const roll of group.rolls) {
-                div.innerHTML += this.rollToInline(roll);
-                hasContent = true;
+                div.innerHTML += rollToInline(roll);
             }
-        }
-
-        if (!hasContent) {
-            ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
-            return;
         }
 
         await ChatMessage.create({
@@ -137,35 +135,36 @@ class RequestRolls extends SvelteApplicationMixin<
                 },
             },
         });
+
+        await this.#updateHistory(groups);
+        this.close();
+    }
+
+    async sendToSocket(groups: RequestGroup[]): Promise<void> {
+        if (hasNoContent(groups)) {
+            ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
+            return;
+        }
+
+        const message: SocketRollRequest = {
+            id: fu.randomID(),
+            groups,
+            users: game.users.players.flatMap((u) => (u.active ? u.id : [])),
+        };
+        game.socket.emit("module.pf2e-request-rolls", message);
+
+        await this.#updateHistory(groups);
+        this.close();
+    }
+
+    async #updateHistory(groups: RequestGroup[]): Promise<void> {
         const history = game.settings.get("pf2e-request-rolls", "history");
         history.push({
             id: fu.randomID(),
             groups,
             time: Date.now(),
         });
-        await game.settings.set("pf2e-request-rolls", "history", R.takeLast(history, 5));
-        this.close();
-    }
-
-    rollToInline(roll: RequestRoll): string {
-        switch (roll.type) {
-            case "action": {
-                const label = roll.label ? `{${roll.label}}` : "";
-                return `[[/act ${roll.slug}${roll.variant ? ` variant=${roll.variant}` : ""} dc=${roll.dc}${roll.statistic ? ` statistic=${roll.statistic}` : ""}]]${label}`;
-            }
-            case "check": {
-                const adjustment = roll.adjustment ? `|adjustment:${roll.adjustment}` : "";
-                const label = roll.label ? `{${roll.label}}` : "";
-                const traits = roll.traits.length ? `|traits:${roll.traits}` : "";
-                return `@Check[${roll.slug}|dc:${roll.dc}${adjustment}${traits}]${label}`;
-            }
-            default:
-                return "";
-        }
-    }
-
-    async renderRoll(roll: RequestRoll): Promise<string> {
-        return TextEditor.enrichHTML(this.rollToInline(roll));
+        await game.settings.set("pf2e-request-rolls", "history", R.takeLast(history, 10));
     }
 
     #prepareActionData(): ActionRenderData[] {
@@ -201,7 +200,7 @@ class RequestRolls extends SvelteApplicationMixin<
         });
     }
 
-    #prepareSkillData(): RequestRollsContext["skills"] {
+    #prepareSkillData(): GMDialogContext["skills"] {
         const lores = new Map<string, string>();
         const loreToCharacters = new Map<string, string[]>();
 
@@ -267,14 +266,14 @@ interface ActionRenderData {
     }[];
 }
 
-interface RequestRollsConfiguration extends ApplicationConfiguration {
+interface GMDialogConfiguration extends ApplicationConfiguration {
     initial?: RequestGroup[];
 }
 
-interface RequestRollsContext extends SvelteApplicationRenderContext {
+interface GMDialogContext extends SvelteApplicationRenderContext {
     actions: ActionRenderData[];
     dcAdjustments: LabeledValue[];
-    foundryApp: RequestRolls;
+    foundryApp: GMDialog;
     history: RequestHistory[];
     initial: RequestGroup[];
     skills: {
@@ -285,40 +284,5 @@ interface RequestRollsContext extends SvelteApplicationRenderContext {
     traits: LabeledValue[];
 }
 
-interface BaseRoll {
-    id: string;
-    dc: number;
-    label?: string;
-    slug: string;
-    type: string;
-}
-
-interface ActionRoll extends BaseRoll {
-    statistic?: string;
-    type: "action";
-    variant?: string;
-}
-
-interface CheckRoll extends BaseRoll {
-    adjustment?: number;
-    traits: string[];
-    type: "check";
-}
-
-interface RequestGroup {
-    rolls: (ActionRoll | CheckRoll)[];
-    id: string;
-    title: string;
-}
-
-interface RequestHistory {
-    id: string;
-    groups: RequestGroup[];
-    time: number;
-}
-
-type LabeledValue = { label: string; value: string };
-type RequestRoll = ActionRoll | CheckRoll;
-
-export { RequestRolls };
-export type { ActionRoll, CheckRoll, LabeledValue, RequestGroup, RequestHistory, RequestRoll, RequestRollsContext };
+export { GMDialog };
+export type { GMDialogContext };
