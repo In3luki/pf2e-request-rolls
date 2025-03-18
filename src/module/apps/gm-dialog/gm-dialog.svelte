@@ -205,7 +205,7 @@
     </button>
 </div>
 
-{#if props.history.length > 0}
+{#if props.state.history.length > 0}
     <button
         type="button"
         class="pf2e-rr--show-history"
@@ -216,10 +216,10 @@
         <i class="fa-solid fa-chevron-right"></i>
     </button>
 {/if}
-{#if showHistory && props.history.length > 0}
+{#if showHistory && props.state.history.length > 0}
     <div class="pf2e-rr--history" transition:fade>
         <div class="header">{localize("GMDialog.HistoryLabel")}</div>
-        {#each props.history as item}
+        {#each props.state.history as item}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div class="item" onclick={() => loadHistory(item)}>{dayjs(item.time).format("YYYY-MM-DD - HH:mm:ss")}</div>

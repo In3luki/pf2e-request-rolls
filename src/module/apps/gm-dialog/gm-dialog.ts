@@ -46,10 +46,13 @@ class GMDialog extends SvelteApplicationMixin<
             actions: actionData,
             dcAdjustments: this.#prepareDCAdjustments(),
             foundryApp: this,
-            history: fu.deepClone(game.settings.get("pf2e-request-rolls", "history")).reverse(),
             initial: this.options.initial ?? [this.getNewGroupData()],
             skills: skillData,
-            state: {},
+            state: {
+                history: fu
+                    .deepClone(game.settings.get("pf2e-request-rolls", "history"))
+                    .sort((a, b) => b.time - a.time),
+            },
             traits: R.entries(sortStringRecord(CONFIG.PF2E.actionTraits)).map(([value, label]) => ({
                 label,
                 value,
@@ -165,13 +168,20 @@ class GMDialog extends SvelteApplicationMixin<
     }
 
     async #updateHistory(groups: RequestGroup[]): Promise<void> {
-        const history = game.settings.get("pf2e-request-rolls", "history");
+        const history = this.$state.history;
+
         history.push({
             id: fu.randomID(),
             groups,
             time: Date.now(),
         });
-        await game.settings.set("pf2e-request-rolls", "history", R.takeLast(history, 10));
+        if (history.length > 10) {
+            const oldest = fu.deepClone(history).sort((a, b) => a.time - b.time)[0];
+            history.findSplice((h) => h.id === oldest.id);
+        }
+        history.sort((a, b) => b.time - a.time);
+
+        await game.settings.set("pf2e-request-rolls", "history", this.$state.history);
     }
 
     #prepareDCAdjustments(): LabeledValue[] {
@@ -215,12 +225,14 @@ interface GMDialogContext extends SvelteApplicationRenderContext {
     actions: ActionRenderData[];
     dcAdjustments: LabeledValue[];
     foundryApp: GMDialog;
-    history: RequestHistory[];
     initial: RequestGroup[];
     skills: {
         skills: LabeledValue[];
         lores: LabeledValue[];
         saves: LabeledValue[];
+    };
+    state: {
+        history: RequestHistory[];
     };
     traits: LabeledValue[];
 }
