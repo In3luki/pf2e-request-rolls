@@ -1,3 +1,9 @@
+## 0.2.0
+
+### New Features
+
+-   Add socket roll requests that open a roll window for the clients ([#13](https://github.com/In3luki/pf2e-request-rolls/pull/13))
+
 ## 0.1.1
 
 ### Enhancements
