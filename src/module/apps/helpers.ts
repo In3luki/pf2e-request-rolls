@@ -8,9 +8,9 @@ const actions = new Map<string, string>();
 const allSkills = new Map<string, string>();
 const actionData: ActionRenderData[] = [];
 const skillData: GMDialogContext["skills"] = {
+    skills: [],
     lores: [],
     saves: [],
-    skills: [],
 };
 
 function prepareActionData(): void {
