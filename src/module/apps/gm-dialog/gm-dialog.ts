@@ -27,6 +27,23 @@ class GMDialog extends SvelteApplicationMixin<
             contentClasses: ["standard-form"],
             positioned: true,
             title: "PF2ERequestRolls.GMDialog.Title",
+            controls: [
+                {
+                    action: "openSettings",
+                    icon: "fa-solid fa-cogs",
+                    label: "PF2ERequestRolls.Settings.OpenSettingsLabel",
+                    visible: true,
+                },
+            ],
+        },
+        actions: {
+            openSettings: async (): Promise<void> => {
+                // @ts-expect-error Missing type
+                ui.activeWindow?.toggleControls();
+                // @ts-expect-error Ignore private
+                game.settings.sheet._tabs[0].active = "pf2e-request-rolls";
+                game.settings.sheet.render(true);
+            },
         },
     };
 
@@ -137,6 +154,10 @@ class GMDialog extends SvelteApplicationMixin<
         });
 
         await this.#updateHistory(groups);
+
+        if (game.settings.get("pf2e-request-rolls", "gmDialog.autoClose")) {
+            this.close();
+        }
     }
 
     async sendToSocket(event: MouseEvent, groups: RequestGroup[], socketId?: string): Promise<void> {
@@ -179,6 +200,9 @@ class GMDialog extends SvelteApplicationMixin<
         ui.notifications.info("PF2ERequestRolls.GMDialog.RequestSuccessful", { localize: true });
 
         await this.#updateHistory(groups, id);
+        if (game.settings.get("pf2e-request-rolls", "gmDialog.autoClose")) {
+            this.close();
+        }
     }
 
     async #updateHistory(groups: RequestGroup[], socketId?: string): Promise<void> {

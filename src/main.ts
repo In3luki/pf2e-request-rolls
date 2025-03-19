@@ -2,6 +2,7 @@ import { prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRollRequest } from "@module/apps/types.ts";
 import * as R from "remeda";
+import { registerSettings } from "./module/settings/register-settings.ts";
 
 globalThis.requestRolls = {
     GMDialog,
@@ -9,12 +10,7 @@ globalThis.requestRolls = {
 };
 
 Hooks.once("init", () => {
-    game.settings.register("pf2e-request-rolls", "history", {
-        name: "history",
-        config: false,
-        type: Array,
-        default: [],
-    });
+    registerSettings();
 });
 
 Hooks.once("ready", () => {

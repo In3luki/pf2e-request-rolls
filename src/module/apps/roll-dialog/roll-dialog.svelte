@@ -4,6 +4,12 @@
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
+
+    function onClickRoll(): void {
+        if (game.settings.get("pf2e-request-rolls", "rollDialog.autoClose")) {
+            props.foundryApp.close();
+        }
+    }
 </script>
 
 <div class="preview">
@@ -14,7 +20,9 @@
                     <strong>{group.title}</strong>
                 </div>
             </div>
-            <div class="rolls">
+            <!-- svelte-ignore a11y_click_events_have_key_events -->
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div class="rolls" onclick={() => onClickRoll()}>
                 {#each group.rolls as roll}
                     {#await TextEditor.enrichHTML(rollToInline(roll))}
                         <div>Loading...</div>

@@ -32,6 +32,17 @@
         "SelectPlayersDialog": {
             "SelectAllLabel": "Select All",
             "Title": "Select Players"
+        },
+        "Settings": {
+            "GMDialog": {
+                "AutoCloseName": "Close GM dialog automatically?",
+                "AutoCloseHint": "Whether the dialog should be closed automatically after a request was sent."
+            },
+            "RollDialog": {
+                "AutoCloseName": "Close roll dialog automatically?",
+                "AutoCloseHint": "Whether the dialog should be closed automatically after a roll was clicked."
+            },
+            "OpenSettingsLabel": "Open Settings"
         }
     }
 }
