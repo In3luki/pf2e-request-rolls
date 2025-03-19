@@ -10,6 +10,8 @@ import Root from "./select-players.svelte";
 class SelectPlayersDialog extends SvelteApplicationMixin<
     AbstractConstructorOf<ApplicationV2> & { DEFAULT_OPTIONS: DeepPartial<SelectPlayersDialogConfiguration> }
 >(foundry.applications.api.ApplicationV2) {
+    #confirmed = false;
+
     static override DEFAULT_OPTIONS: DeepPartial<SelectPlayersDialogConfiguration> = {
         id: "rr-select-players",
         position: {
@@ -38,10 +40,17 @@ class SelectPlayersDialog extends SvelteApplicationMixin<
         };
     }
 
+    resolve(): void {
+        this.$state.players.filter((s) => s.checked).map((s) => s.id);
+        this.#confirmed = true;
+        this.close();
+    }
+
     protected override _onClose(options: ApplicationClosingOptions): void {
         super._onClose(options);
-
-        this.options.resolve(this.$state.players.filter((s) => s.checked).map((s) => s.id));
+        if (!this.#confirmed) {
+            this.options.resolve([]);
+        }
     }
 }
 

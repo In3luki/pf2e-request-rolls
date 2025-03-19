@@ -13,7 +13,7 @@
     {/each}
 </div>
 <div>
-    <button type="button" onclick={() => props.foundryApp.close()}>
+    <button type="button" onclick={() => props.foundryApp.resolve()}>
         {game.i18n.localize("Confirm")}
     </button>
 </div>
