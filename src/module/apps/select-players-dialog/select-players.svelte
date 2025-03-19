@@ -24,7 +24,7 @@
     {/each}
 </div>
 <div>
-    <button type="button" onclick={() => props.foundryApp.resolve()}>
+    <button type="button" onclick={() => props.foundryApp.confirm()}>
         {game.i18n.localize("Confirm")}
     </button>
 </div>

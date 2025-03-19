@@ -40,17 +40,15 @@ class SelectPlayersDialog extends SvelteApplicationMixin<
         };
     }
 
-    resolve(): void {
-        this.$state.players.filter((s) => s.checked).map((s) => s.id);
+    confirm(): void {
         this.#confirmed = true;
         this.close();
     }
 
     protected override _onClose(options: ApplicationClosingOptions): void {
         super._onClose(options);
-        if (!this.#confirmed) {
-            this.options.resolve([]);
-        }
+        const result = this.#confirmed ? this.$state.players.filter((s) => s.checked).map((s) => s.id) : [];
+        this.options.resolve(result);
     }
 }
 

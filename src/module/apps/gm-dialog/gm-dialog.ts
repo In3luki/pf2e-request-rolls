@@ -139,7 +139,7 @@ class GMDialog extends SvelteApplicationMixin<
         await this.#updateHistory(groups);
     }
 
-    async sendToSocket(groups: RequestGroup[]): Promise<void> {
+    async sendToSocket(event: MouseEvent, groups: RequestGroup[], socketId?: string): Promise<void> {
         if (hasNoContent(groups)) {
             ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
             return;
@@ -148,15 +148,29 @@ class GMDialog extends SvelteApplicationMixin<
         const players: PlayerSelection[] = game.users.players.flatMap((u) =>
             u.active && u.character ? { id: u.id, name: u.character.name, checked: true } : [],
         );
-        if (players.length === 0) return;
+        if (players.length === 0) {
+            ui.notifications.warn("PF2ERequestRolls.GMDialog.NoActivePlayersWarning", { localize: true });
+            return;
+        }
 
-        const { promise, resolve } = Promise.withResolvers<string[]>();
-        new SelectPlayersDialog({ players, resolve }).render({ force: true });
-        const users = await promise;
-        if (users.length === 0) return;
+        const users = await (async (): Promise<string[] | null> => {
+            if (event.shiftKey) {
+                return players.map((p) => p.id);
+            }
+            const { promise: dialog, resolve } = Promise.withResolvers<string[]>();
+            new SelectPlayersDialog({ players, resolve }).render({ force: true });
+            const users = await dialog;
+            if (users.length === 0) {
+                ui.notifications.warn("PF2ERequestRolls.GMDialog.NoPlayersSelectedWarning", { localize: true });
+                return null;
+            }
+            return users;
+        })();
+        if (!users) return;
 
+        const id = socketId ?? fu.randomID();
         const message: SocketRollRequest = {
-            id: fu.randomID(),
+            id,
             groups,
             users,
         };
@@ -164,16 +178,17 @@ class GMDialog extends SvelteApplicationMixin<
         game.socket.emit("module.pf2e-request-rolls", message);
         ui.notifications.info("PF2ERequestRolls.GMDialog.RequestSuccessful", { localize: true });
 
-        await this.#updateHistory(groups);
+        await this.#updateHistory(groups, id);
     }
 
-    async #updateHistory(groups: RequestGroup[]): Promise<void> {
+    async #updateHistory(groups: RequestGroup[], socketId?: string): Promise<void> {
         const history = this.$state.history;
 
         history.push({
             id: fu.randomID(),
             groups,
             time: Date.now(),
+            socketId,
         });
         if (history.length > 10) {
             const oldest = fu.deepClone(history).sort((a, b) => a.time - b.time)[0];

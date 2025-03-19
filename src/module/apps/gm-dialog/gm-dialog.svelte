@@ -13,6 +13,7 @@
     let selectedGroupId = $state(requests[0]?.id ?? "");
     let selectedGroup = $derived(requests.find((r) => r.id === selectedGroupId) ?? requests[0]);
     let selectedRollId: string | null = $state(null);
+    let socketId: string | undefined;
     let editing = $derived(selectedGroup.rolls.find((r) => r.id === selectedRollId));
     let showHistory = $state(false);
 
@@ -45,8 +46,21 @@
     }
 
     function loadHistory(item: RequestHistory): void {
+        socketId = item.socketId;
         untrack(() => (requests.length = 0));
         requests.push(...fu.deepClone(item.groups));
+    }
+
+    function onSendButtonClick(event: MouseEvent, kind: "chat" | "socket"): void {
+        const groups = $state.snapshot(requests);
+        switch (kind) {
+            case "chat":
+                props.foundryApp.sendToChat(groups);
+                break;
+            case "socket":
+                props.foundryApp.sendToSocket(event, groups, socketId);
+        }
+        socketId = undefined;
     }
 
     function onChangeAction(event: Event & { currentTarget: HTMLSelectElement }, roll: ActionRoll): void {
@@ -197,11 +211,14 @@
     </div>
 </div>
 <div class="submit-buttons">
-    <button type="button" onclick={() => props.foundryApp.sendToSocket($state.snapshot(requests))}>
-        {localize("GMDialog.Buttons.RequestRollsLabel")}
-    </button>
     <button type="button" onclick={() => props.foundryApp.sendToChat($state.snapshot(requests))}>
         {localize("GMDialog.Buttons.SendToChatLabel")}
+    </button>
+    <button type="button" onclick={(e) => onSendButtonClick(e, "socket")}>
+        {localize("GMDialog.Buttons.RequestRollsLabel")}
+    </button>
+    <button type="button" onclick={(e) => onSendButtonClick(e, "chat")}>
+        {game.i18n.localize("Close")}
     </button>
 </div>
 
