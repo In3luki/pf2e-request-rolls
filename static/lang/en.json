@@ -28,6 +28,7 @@
             "Title": "Requested Rolls"
         },
         "SelectPlayersDialog": {
+            "SelectAllLabel": "Select All",
             "Title": "Select Players"
         }
     }
