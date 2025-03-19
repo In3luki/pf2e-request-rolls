@@ -1,3 +1,17 @@
+## 0.3.0
+
+### New Features
+
+-   Add player selection dialog for socket roll requests ([#15](https://github.com/In3luki/pf2e-request-rolls/pull/15))
+    -   Shift-clicking the `Request Rolls` button skips the dialog and sends the request to all players
+
+### Enhancements
+
+-   The `GMDialog` now stays open after sending requests ([#15](https://github.com/In3luki/pf2e-request-rolls/pull/15))
+-   Improve string replacement in optional labels ([#15](https://github.com/In3luki/pf2e-request-rolls/pull/15))
+-   Use the same socket message id when loading from history ([#15](https://github.com/In3luki/pf2e-request-rolls/pull/15))
+    -   Sending a request with the same id will refresh the open roll windows of receiving clients
+
 ## 0.2.0
 
 ### New Features

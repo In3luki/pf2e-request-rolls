@@ -18,12 +18,20 @@
             "HistoryLabel": "History",
             "Label": "Label",
             "LabelPlaceholder": "Enter optional label",
+            "NoActivePlayersWarning": "No active players found!",
             "NoContentWarning": "Request has no content!",
+            "NoPlayersSelectedWarning": "No players were selected!",
+            "RequestSuccessful": "Successfully requested rolls",
+            "SelectPlayersLabel": "Select Players",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
         },
         "RollDialog": {
             "Title": "Requested Rolls"
+        },
+        "SelectPlayersDialog": {
+            "SelectAllLabel": "Select All",
+            "Title": "Select Players"
         }
     }
 }

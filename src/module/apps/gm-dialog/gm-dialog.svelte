@@ -4,7 +4,6 @@
     import dayjs from "dayjs";
     import type { GMDialogContext } from "./gm-dialog.ts";
     import type { ActionRoll, CheckRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
-    import { htmlClosest, htmlQuery } from "@util";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
     import { rollToInline } from "../helpers.ts";
@@ -14,6 +13,7 @@
     let selectedGroupId = $state(requests[0]?.id ?? "");
     let selectedGroup = $derived(requests.find((r) => r.id === selectedGroupId) ?? requests[0]);
     let selectedRollId: string | null = $state(null);
+    let socketId: string | undefined;
     let editing = $derived(selectedGroup.rolls.find((r) => r.id === selectedRollId));
     let showHistory = $state(false);
 
@@ -46,8 +46,21 @@
     }
 
     function loadHistory(item: RequestHistory): void {
+        socketId = item.socketId;
         untrack(() => (requests.length = 0));
         requests.push(...fu.deepClone(item.groups));
+    }
+
+    function onSendButtonClick(event: MouseEvent, kind: "chat" | "socket"): void {
+        const groups = $state.snapshot(requests);
+        switch (kind) {
+            case "chat":
+                props.foundryApp.sendToChat(groups);
+                break;
+            case "socket":
+                props.foundryApp.sendToSocket(event, groups, socketId);
+        }
+        socketId = undefined;
     }
 
     function onChangeAction(event: Event & { currentTarget: HTMLSelectElement }, roll: ActionRoll): void {
@@ -55,19 +68,6 @@
         const action = props.actions.find((a) => a.slug === roll.slug);
         roll.variant = action?.variants.at(0)?.slug;
         roll.statistic = action?.statistic;
-    }
-
-    function onInputLabel(event: Event & { currentTarget: HTMLInputElement }, roll: RequestRoll): void {
-        const value = event.currentTarget.value;
-        if (!value.includes("$")) {
-            roll.label = value;
-            return;
-        }
-        const actions = htmlQuery<HTMLSelectElement>(htmlClosest(event.currentTarget, ".edit"), "select[name=actions]");
-        const skills = htmlQuery<HTMLSelectElement>(htmlClosest(event.currentTarget, ".edit"), "select[name=skills]");
-        roll.label = value
-            .replaceAll("$a", actions?.selectedOptions[0]?.innerHTML ?? "")
-            .replaceAll("$s", skills?.selectedOptions[0]?.innerHTML ?? "");
     }
 
     function onClickRoll(event: MouseEvent, group: RequestGroup, roll: RequestRoll): void {
@@ -211,15 +211,18 @@
     </div>
 </div>
 <div class="submit-buttons">
-    <button type="button" onclick={() => props.foundryApp.sendToSocket($state.snapshot(requests))}>
-        {localize("GMDialog.Buttons.RequestRollsLabel")}
-    </button>
     <button type="button" onclick={() => props.foundryApp.sendToChat($state.snapshot(requests))}>
         {localize("GMDialog.Buttons.SendToChatLabel")}
     </button>
+    <button type="button" onclick={(e) => onSendButtonClick(e, "socket")}>
+        {localize("GMDialog.Buttons.RequestRollsLabel")}
+    </button>
+    <button type="button" onclick={(e) => onSendButtonClick(e, "chat")}>
+        {game.i18n.localize("Close")}
+    </button>
 </div>
 
-{#if props.history.length > 0}
+{#if props.state.history.length > 0}
     <button
         type="button"
         class="pf2e-rr--show-history"
@@ -230,10 +233,10 @@
         <i class="fa-solid fa-chevron-right"></i>
     </button>
 {/if}
-{#if showHistory && props.history.length > 0}
+{#if showHistory && props.state.history.length > 0}
     <div class="pf2e-rr--history" transition:fade>
         <div class="header">{localize("GMDialog.HistoryLabel")}</div>
-        {#each props.history as item}
+        {#each props.state.history as item}
             <!-- svelte-ignore a11y_click_events_have_key_events -->
             <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div class="item" onclick={() => loadHistory(item)}>{dayjs(item.time).format("YYYY-MM-DD - HH:mm:ss")}</div>
@@ -283,7 +286,7 @@
             id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            oninput={(e) => onInputLabel(e, roll)}
+            bind:value={roll.label}
         />
     </div>
 {/snippet}
@@ -325,7 +328,7 @@
             id="check-label-{roll.id}"
             type="text"
             placeholder={localize("GMDialog.LabelPlaceholder")}
-            oninput={(e) => onInputLabel(e, roll)}
+            bind:value={roll.label}
         />
     </div>
     <div class="form-group">

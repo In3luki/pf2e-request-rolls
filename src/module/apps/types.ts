@@ -27,6 +27,7 @@ interface RequestGroup {
 interface RequestHistory {
     groups: RequestGroup[];
     id: string;
+    socketId?: string;
     time: number;
 }
 

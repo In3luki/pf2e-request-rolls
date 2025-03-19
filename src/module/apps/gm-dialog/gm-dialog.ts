@@ -3,12 +3,13 @@ import type {
     ApplicationRenderOptions,
 } from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
 import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
-import type { Action, ActionVariant, ChatMessagePF2e } from "@pf2e/types/index.ts";
+import type { ChatMessagePF2e } from "@pf2e/types/index.ts";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import { hasNoContent, rollToInline } from "../helpers.ts";
+import { actionData, hasNoContent, rollToInline, skillData } from "../helpers.ts";
+import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
 
@@ -34,10 +35,6 @@ class GMDialog extends SvelteApplicationMixin<
 
     protected root = Root;
 
-    #actions = this.#prepareActionData();
-
-    #skillData = this.#prepareSkillData();
-
     static fromMessage(message: ChatMessagePF2e): void {
         const groups: RequestGroup[] | undefined = fu.getProperty(message.flags, "pf2e-request-rolls.groups");
         if (!groups) return;
@@ -46,13 +43,16 @@ class GMDialog extends SvelteApplicationMixin<
 
     protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<GMDialogContext> {
         return {
-            actions: this.#actions,
+            actions: actionData,
             dcAdjustments: this.#prepareDCAdjustments(),
             foundryApp: this,
-            history: fu.deepClone(game.settings.get("pf2e-request-rolls", "history")).reverse(),
             initial: this.options.initial ?? [this.getNewGroupData()],
-            skills: this.#skillData,
-            state: {},
+            skills: skillData,
+            state: {
+                history: fu
+                    .deepClone(game.settings.get("pf2e-request-rolls", "history"))
+                    .sort((a, b) => b.time - a.time),
+            },
             traits: R.entries(sortStringRecord(CONFIG.PF2E.actionTraits)).map(([value, label]) => ({
                 label,
                 value,
@@ -84,9 +84,9 @@ class GMDialog extends SvelteApplicationMixin<
                 return {
                     dc: 10,
                     id: fu.randomID(),
-                    slug: this.#actions[0].slug,
-                    statistic: this.#actions[0].statistic,
-                    variant: this.#actions[0].variants.at(0)?.slug,
+                    slug: actionData[0].slug,
+                    statistic: actionData[0].statistic,
+                    variant: actionData[0].variants.at(0)?.slug,
                     type: "action",
                 };
             case "check":
@@ -137,100 +137,66 @@ class GMDialog extends SvelteApplicationMixin<
         });
 
         await this.#updateHistory(groups);
-        this.close();
     }
 
-    async sendToSocket(groups: RequestGroup[]): Promise<void> {
+    async sendToSocket(event: MouseEvent, groups: RequestGroup[], socketId?: string): Promise<void> {
         if (hasNoContent(groups)) {
             ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
             return;
         }
 
-        const message: SocketRollRequest = {
-            id: fu.randomID(),
-            groups,
-            users: game.users.players.flatMap((u) => (u.active ? u.id : [])),
-        };
-        game.socket.emit("module.pf2e-request-rolls", message);
+        const players: PlayerSelection[] = game.users.players.flatMap((u) =>
+            u.active && u.character ? { id: u.id, name: u.character.name, checked: true } : [],
+        );
+        if (players.length === 0) {
+            ui.notifications.warn("PF2ERequestRolls.GMDialog.NoActivePlayersWarning", { localize: true });
+            return;
+        }
 
-        await this.#updateHistory(groups);
-        this.close();
+        const users = await (async (): Promise<string[] | null> => {
+            if (event.shiftKey) {
+                return players.map((p) => p.id);
+            }
+            const { promise: dialog, resolve } = Promise.withResolvers<string[]>();
+            new SelectPlayersDialog({ players, resolve }).render({ force: true });
+            const users = await dialog;
+            if (users.length === 0) {
+                ui.notifications.warn("PF2ERequestRolls.GMDialog.NoPlayersSelectedWarning", { localize: true });
+                return null;
+            }
+            return users;
+        })();
+        if (!users) return;
+
+        const id = socketId ?? fu.randomID();
+        const message: SocketRollRequest = {
+            id,
+            groups,
+            users,
+        };
+
+        game.socket.emit("module.pf2e-request-rolls", message);
+        ui.notifications.info("PF2ERequestRolls.GMDialog.RequestSuccessful", { localize: true });
+
+        await this.#updateHistory(groups, id);
     }
 
-    async #updateHistory(groups: RequestGroup[]): Promise<void> {
-        const history = game.settings.get("pf2e-request-rolls", "history");
+    async #updateHistory(groups: RequestGroup[], socketId?: string): Promise<void> {
+        const history = this.$state.history;
+
         history.push({
             id: fu.randomID(),
             groups,
             time: Date.now(),
+            socketId,
         });
-        await game.settings.set("pf2e-request-rolls", "history", R.takeLast(history, 10));
-    }
-
-    #prepareActionData(): ActionRenderData[] {
-        const getStatistic = (a: Action | ActionVariant): string | undefined => {
-            if ("statistic" in a && typeof a.statistic === "string") {
-                return a.statistic;
-            }
-            return;
-        };
-
-        return game.pf2e.actions.contents.map((a) => {
-            const data: ActionRenderData = {
-                label: game.i18n.localize(a.name),
-                slug: a.slug,
-                variants: [],
-            };
-            const stat = getStatistic(a);
-            if (stat) {
-                data.statistic = stat;
-            }
-            for (const v of a.variants.contents) {
-                const variant = {
-                    label: game.i18n.localize(v.name ?? ""),
-                    slug: v.slug,
-                };
-                const stat = getStatistic(v);
-                if (stat) {
-                    data.statistic = stat;
-                }
-                data.variants.push(variant);
-            }
-            return data;
-        });
-    }
-
-    #prepareSkillData(): GMDialogContext["skills"] {
-        const lores = new Map<string, string>();
-        const loreToCharacters = new Map<string, string[]>();
-
-        for (const character of game.actors.filter((a) => a.hasPlayerOwner && a.type !== "familiar")) {
-            for (const [slug, statistic] of Object.entries(character.skills ?? {})) {
-                if (!statistic.lore) continue;
-                lores.set(slug, statistic.label);
-                if (loreToCharacters.has(slug)) {
-                    loreToCharacters.get(slug)?.push(character.name);
-                } else {
-                    loreToCharacters.set(slug, [character.name]);
-                }
-            }
+        if (history.length > 10) {
+            const oldest = fu.deepClone(history).sort((a, b) => a.time - b.time)[0];
+            history.findSplice((h) => h.id === oldest.id);
         }
-        for (const [slug, label] of lores) {
-            const characters = loreToCharacters.get(slug);
-            if (!characters) {
-                console.warn(`Found lore skill without a character!? ${slug} (${label})`);
-                continue;
-            }
-            lores.set(slug, `${label} (${characters.join(", ")})`);
-        }
+        history.sort((a, b) => b.time - a.time);
 
-        return {
-            skills: R.entries(CONFIG.PF2E.skills)
-                .map(([value, s]) => ({ label: game.i18n.localize(s.label), value }))
-                .sort((a, b) => a.label.localeCompare(b.label, game.i18n.lang)),
-            lores: [...lores.entries()].map(([value, label]) => ({ value, label })),
-            saves: R.entries(sortStringRecord(CONFIG.PF2E.saves)).map(([value, label]) => ({ value, label })),
-        };
+        await game.settings.set("pf2e-request-rolls", "history", this.$state.history);
     }
 
     #prepareDCAdjustments(): LabeledValue[] {
@@ -274,15 +240,17 @@ interface GMDialogContext extends SvelteApplicationRenderContext {
     actions: ActionRenderData[];
     dcAdjustments: LabeledValue[];
     foundryApp: GMDialog;
-    history: RequestHistory[];
     initial: RequestGroup[];
     skills: {
         skills: LabeledValue[];
         lores: LabeledValue[];
         saves: LabeledValue[];
     };
+    state: {
+        history: RequestHistory[];
+    };
     traits: LabeledValue[];
 }
 
 export { GMDialog };
-export type { GMDialogContext };
+export type { ActionRenderData, GMDialogContext };
