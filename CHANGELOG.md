@@ -1,3 +1,10 @@
+## 0.4.0
+
+### New Features
+
+-   Add setting that controls whether the `GMDialog` is closed after sending a request ([#16](https://github.com/In3luki/pf2e-request-rolls/pull/16))
+-   Add inline links that open the dialog with the inlined roll data ([#16](https://github.com/In3luki/pf2e-request-rolls/pull/16))
+
 ## 0.3.0
 
 ### New Features

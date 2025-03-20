@@ -8,7 +8,7 @@ import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import { actionData, hasNoContent, rollToInline, skillData } from "../helpers.ts";
+import { actionData, decompressFromBase64, hasNoContent, rollToInline, skillData } from "../helpers.ts";
 import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
@@ -20,13 +20,30 @@ class GMDialog extends SvelteApplicationMixin<
         id: "pf2e-request-rolls",
         position: {
             width: 700,
-            height: 410,
+            height: 420,
         },
         window: {
             icon: "fa-solid fa-dice",
             contentClasses: ["standard-form"],
             positioned: true,
             title: "PF2ERequestRolls.GMDialog.Title",
+            controls: [
+                {
+                    action: "openSettings",
+                    icon: "fa-solid fa-cogs",
+                    label: "PF2ERequestRolls.Settings.OpenSettingsLabel",
+                    visible: true,
+                },
+            ],
+        },
+        actions: {
+            openSettings: async (): Promise<void> => {
+                // @ts-expect-error Missing type
+                ui.activeWindow?.toggleControls();
+                // @ts-expect-error Ignore private
+                game.settings.sheet._tabs[0].active = "pf2e-request-rolls";
+                game.settings.sheet.render(true);
+            },
         },
     };
 
@@ -38,6 +55,11 @@ class GMDialog extends SvelteApplicationMixin<
     static fromMessage(message: ChatMessagePF2e): void {
         const groups: RequestGroup[] | undefined = fu.getProperty(message.flags, "pf2e-request-rolls.groups");
         if (!groups) return;
+        new this({ initial: groups }).render({ force: true });
+    }
+
+    static async fromString(text: string): Promise<void> {
+        const groups = await decompressFromBase64(text);
         new this({ initial: groups }).render({ force: true });
     }
 
@@ -102,10 +124,10 @@ class GMDialog extends SvelteApplicationMixin<
         }
     }
 
-    async sendToChat(groups: RequestGroup[]): Promise<void> {
+    async sendToChat(groups: RequestGroup[]): Promise<boolean> {
         if (hasNoContent(groups)) {
             ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
-            return;
+            return false;
         }
 
         const container = document.createElement("div");
@@ -137,12 +159,17 @@ class GMDialog extends SvelteApplicationMixin<
         });
 
         await this.#updateHistory(groups);
+
+        if (game.settings.get("pf2e-request-rolls", "gmDialog.autoClose")) {
+            this.close();
+        }
+        return true;
     }
 
-    async sendToSocket(event: MouseEvent, groups: RequestGroup[], socketId?: string): Promise<void> {
+    async sendToSocket(event: MouseEvent, groups: RequestGroup[], socketId?: string): Promise<boolean> {
         if (hasNoContent(groups)) {
             ui.notifications.warn("PF2ERequestRolls.GMDialog.NoContentWarning", { localize: true });
-            return;
+            return false;
         }
 
         const players: PlayerSelection[] = game.users.players.flatMap((u) =>
@@ -150,7 +177,7 @@ class GMDialog extends SvelteApplicationMixin<
         );
         if (players.length === 0) {
             ui.notifications.warn("PF2ERequestRolls.GMDialog.NoActivePlayersWarning", { localize: true });
-            return;
+            return false;
         }
 
         const users = await (async (): Promise<string[] | null> => {
@@ -166,7 +193,7 @@ class GMDialog extends SvelteApplicationMixin<
             }
             return users;
         })();
-        if (!users) return;
+        if (!users) return false;
 
         const id = socketId ?? fu.randomID();
         const message: SocketRollRequest = {
@@ -179,6 +206,10 @@ class GMDialog extends SvelteApplicationMixin<
         ui.notifications.info("PF2ERequestRolls.GMDialog.RequestSuccessful", { localize: true });
 
         await this.#updateHistory(groups, id);
+        if (game.settings.get("pf2e-request-rolls", "gmDialog.autoClose")) {
+            this.close();
+        }
+        return true;
     }
 
     async #updateHistory(groups: RequestGroup[], socketId?: string): Promise<void> {

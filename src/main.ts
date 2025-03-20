@@ -1,7 +1,9 @@
 import { prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRollRequest } from "@module/apps/types.ts";
+import { htmlClosest } from "@util";
 import * as R from "remeda";
+import { registerSettings } from "./module/settings/register-settings.ts";
 
 globalThis.requestRolls = {
     GMDialog,
@@ -9,11 +11,20 @@ globalThis.requestRolls = {
 };
 
 Hooks.once("init", () => {
-    game.settings.register("pf2e-request-rolls", "history", {
-        name: "history",
-        config: false,
-        type: Array,
-        default: [],
+    registerSettings();
+
+    CONFIG.TextEditor.enrichers.push({
+        pattern: /@RequestRolls\[(?<data>\S+)\](?:\{(?<label>[^}]+)\})?/g,
+        enricher,
+    });
+});
+
+Hooks.once("setup", () => {
+    document.addEventListener("click", (event) => {
+        const link = htmlClosest(event.target, "a.pf2e-rr--inline-link");
+        if (!link?.dataset.groups) return;
+        event.preventDefault();
+        requestRolls.GMDialog.fromString(link.dataset.groups);
     });
 });
 
@@ -78,4 +89,21 @@ function rerenderApps(): void {
     for (const app of apps) {
         app.render();
     }
+}
+
+async function enricher(match: RegExpMatchArray): Promise<HTMLElement | null> {
+    if (!match.groups?.data) return null;
+
+    const anchor = document.createElement("a");
+    anchor.classList.add("inline-check", "pf2e-rr--inline-link");
+    anchor.dataset.groups = match.groups.data;
+    const icon = document.createElement("i");
+    icon.classList.add("fa-solid", "fa-dice");
+    anchor.appendChild(icon);
+    const label = document.createElement("span");
+    label.classList.add("label");
+    label.innerHTML = match.groups?.label ? match.groups?.label : game.i18n.localize("PF2ERequestRolls.GMDialog.Title");
+    anchor.appendChild(label);
+
+    return anchor;
 }

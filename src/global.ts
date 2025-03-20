@@ -12,6 +12,9 @@ declare global {
 
     interface ClientSettings {
         get(module: "pf2e-request-rolls", setting: "history"): RequestHistory[];
+        get(module: "pf2e-request-rolls", setting: "gmDialog.autoClose"): boolean;
+        get(module: "pf2e-request-rolls", setting: "rollDialog.autoClose"): boolean;
+
         set(module: "pf2e-request-rolls", setting: "history", value: RequestGroup[]): Promise<RequestHistory[]>;
     }
 }
