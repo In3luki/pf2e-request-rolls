@@ -2,17 +2,21 @@
     "PF2ERequestRolls": {
         "ContextMenuLabel": "Open PF2e Request Rolls",
         "GMDialog": {
+            "AddGroupButtonTooltip": "Add Group",
             "AdjustmentLabel": "Adjustment",
             "Buttons": {
                 "ActionLabel": "Add Action",
                 "CheckLabel": "Add Check",
+                "ClearAllLabel": "Clear All",
                 "RequestRollsLabel": "Request Rolls",
                 "SendToChatLabel": "Send to Chat",
                 "ShowHistoryLabel": "Show History"
             },
-            "AddGroupButtonTooltip": "Add Group",
-            "ConfirmDeleteRoll": "Delete Roll?",
-            "ConfirmDeleteGroup": "Delete Group?",
+            "ConfirmClearAll": "Really clear everything?",
+            "ConfirmDeleteGroup": "Really delete Group?",
+            "ConfirmDeleteRoll": "Really delete Roll?",
+            "CopyAsInlineLink": "Copy as inline link",
+            "CopyAsInlineLinkConfirmation": "Inline link copied to clipboard",
             "GroupHeader": "Group Header",
             "GroupHeaderPlaceholder": "Enter optional group header",
             "HistoryLabel": "History",

@@ -24,6 +24,46 @@ interface RequestGroup {
     title: string;
 }
 
+interface MinifiedBaseRoll {
+    /** id */
+    i: string;
+    /** dc */
+    d: number;
+    /** label */
+    l?: string;
+    /** slug */
+    sl: string;
+    /** type */
+    t: string;
+}
+
+interface MinifiedActionRoll extends MinifiedBaseRoll {
+    /** statistic */
+    s?: string;
+    /** type */
+    t: "a";
+    /** variant */
+    v?: string;
+}
+
+interface MinifiedCheckRoll extends MinifiedBaseRoll {
+    /** adjustment */
+    a?: number;
+    /** traits */
+    tr?: string[];
+    /** type */
+    t: "c";
+}
+
+interface MinifiedRequestGroup {
+    /** rolls */
+    r: (MinifiedActionRoll | MinifiedCheckRoll)[];
+    /** id */
+    i: string;
+    /** title */
+    t?: string;
+}
+
 interface RequestHistory {
     groups: RequestGroup[];
     id: string;
@@ -40,4 +80,15 @@ interface SocketRollRequest {
 type LabeledValue = { label: string; value: string };
 type RequestRoll = ActionRoll | CheckRoll;
 
-export type { ActionRoll, CheckRoll, LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest };
+export type {
+    ActionRoll,
+    CheckRoll,
+    LabeledValue,
+    MinifiedActionRoll,
+    MinifiedCheckRoll,
+    MinifiedRequestGroup,
+    RequestGroup,
+    RequestHistory,
+    RequestRoll,
+    SocketRollRequest,
+};

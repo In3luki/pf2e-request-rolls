@@ -6,7 +6,7 @@
     import type { ActionRoll, CheckRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
-    import { rollToInline } from "../helpers.ts";
+    import { compressToBase64, rollToInline } from "../helpers.ts";
 
     const props: GMDialogContext = $props();
     const requests: RequestGroup[] = $state(props.initial);
@@ -51,16 +51,20 @@
         requests.push(...fu.deepClone(item.groups));
     }
 
-    function onSendButtonClick(event: MouseEvent, kind: "chat" | "socket"): void {
+    async function onSendButtonClick(event: MouseEvent, kind: "chat" | "socket"): Promise<void> {
         const groups = $state.snapshot(requests);
+        let success = false;
         switch (kind) {
             case "chat":
-                props.foundryApp.sendToChat(groups);
+                success = await props.foundryApp.sendToChat(groups);
                 break;
             case "socket":
-                props.foundryApp.sendToSocket(event, groups, socketId);
+                success = await props.foundryApp.sendToSocket(event, groups, socketId);
         }
         socketId = undefined;
+        if (success) {
+            clearAll();
+        }
     }
 
     function onChangeAction(event: Event & { currentTarget: HTMLSelectElement }, roll: ActionRoll): void {
@@ -83,6 +87,25 @@
             return;
         }
         switchActive(group, roll);
+    }
+
+    async function onClickCopy(): Promise<void> {
+        const text = await compressToBase64($state.snapshot(requests));
+        game.clipboard.copyPlainText(`@RequestRolls[${text}]`);
+        ui.notifications.info("PF2ERequestRolls.GMDialog.CopyAsInlineLinkConfirmation", { localize: true });
+    }
+
+    async function clearAll(dialog = false): Promise<void> {
+        if (dialog) {
+            const confirmed = await foundry.applications.api.DialogV2.confirm({
+                content: localize("GMDialog.ConfirmClearAll"),
+                rejectClose: false,
+                modal: true,
+            });
+            if (!confirmed) return;
+        }
+        untrack(() => (requests.length = 0));
+        requests.push(props.foundryApp.getNewGroupData());
     }
 
     function switchActive(group: RequestGroup, roll?: RequestRoll): void {
@@ -134,6 +157,38 @@
     }
 </script>
 
+<div class="top-controls">
+    <div class="left">
+        <button
+            type="button"
+            aria-labelledby="data-tooltip"
+            data-tooltip={localize("GMDialog.CopyAsInlineLink")}
+            onclick={() => onClickCopy()}
+        >
+            <i class="fa-solid fa-copy"></i>
+        </button>
+    </div>
+    <div class="right">
+        <button
+            type="button"
+            aria-labelledby="data-tooltip"
+            data-tooltip={localize("GMDialog.Buttons.ClearAllLabel")}
+            onclick={() => clearAll(true)}
+        >
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+        </button>
+        <button
+            type="button"
+            class="pf2e-rr--show-history"
+            aria-labelledby="data-tooltip"
+            data-tooltip={localize("GMDialog.Buttons.ShowHistoryLabel")}
+            disabled={props.state.history.length === 0}
+            onclick={() => (showHistory = !showHistory)}
+        >
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
 <div class="container">
     <div class="edit">
         <div class="form-group">
@@ -211,28 +266,17 @@
     </div>
 </div>
 <div class="submit-buttons">
-    <button type="button" onclick={() => props.foundryApp.sendToChat($state.snapshot(requests))}>
+    <button type="button" onclick={(e) => onSendButtonClick(e, "chat")}>
         {localize("GMDialog.Buttons.SendToChatLabel")}
     </button>
     <button type="button" onclick={(e) => onSendButtonClick(e, "socket")}>
         {localize("GMDialog.Buttons.RequestRollsLabel")}
     </button>
-    <button type="button" onclick={(e) => onSendButtonClick(e, "chat")}>
+    <button type="button" onclick={() => props.foundryApp.close()}>
         {game.i18n.localize("Close")}
     </button>
 </div>
 
-{#if props.state.history.length > 0}
-    <button
-        type="button"
-        class="pf2e-rr--show-history"
-        aria-label="show-history"
-        data-tooltip={localize("GMDialog.Buttons.ShowHistoryLabel")}
-        onclick={() => (showHistory = !showHistory)}
-    >
-        <i class="fa-solid fa-chevron-right"></i>
-    </button>
-{/if}
 {#if showHistory && props.state.history.length > 0}
     <div class="pf2e-rr--history" transition:fade>
         <div class="header">{localize("GMDialog.HistoryLabel")}</div>
@@ -343,6 +387,25 @@
 {/snippet}
 
 <style lang="scss">
+    .top-controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 0.25em;
+
+        button {
+            height: 1.5em;
+        }
+
+        .left,
+        .right {
+            display: flex;
+            button {
+                margin-right: 0.4em;
+            }
+        }
+    }
+
     .container {
         display: grid;
         grid-template-columns: 1fr 0.95fr;
@@ -351,6 +414,7 @@
 
     .submit-buttons {
         display: flex;
+        margin-top: 1rem;
     }
 
     .edit {
@@ -444,14 +508,6 @@
         }
     }
 
-    button.pf2e-rr--show-history {
-        position: absolute;
-        top: 40px;
-        right: 10px;
-        width: 16px;
-        height: 16px;
-    }
-
     input {
         margin: 0.5em;
     }
@@ -465,10 +521,6 @@
             --visibility-gm-bg: var(--color-dark-6);
             --pf2e-rr--preview-bg-color: var(--color-dark-2);
             --pf2e-rr--preview-border-color: var(--color-dark-3);
-
-            button.pf2e-rr--show-history {
-                top: 2px;
-            }
 
             .pf2e-rr--history {
                 top: 0px;
@@ -486,6 +538,8 @@
 
             .window-content {
                 overflow: visible;
+                padding: 0 1rem;
+                gap: unset;
             }
 
             span[data-pf2-action] {
@@ -511,6 +565,12 @@
             margin-bottom: 0.5em;
         }
 
+        .pf2e-rr--inline-link {
+            i {
+                margin-right: 0.25em;
+            }
+        }
+
         /* DorakoUI */
 
         [data-theme][data-color-scheme="dark"] {
@@ -524,10 +584,6 @@
         }
 
         [data-theme][data-dorako-ui-scope="unlimited"] {
-            button.pf2e-rr--show-history {
-                top: 28px;
-            }
-
             div.pf2e-rr--history {
                 top: 28px;
                 background: var(--window-app-background);

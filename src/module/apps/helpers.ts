@@ -2,7 +2,15 @@ import type { Action, ActionVariant } from "@pf2e/types/index.ts";
 import { sortStringRecord } from "@util/misc.ts";
 import * as R from "remeda";
 import { ActionRenderData, GMDialogContext } from "./gm-dialog/gm-dialog.ts";
-import type { RequestGroup, RequestRoll } from "./types.ts";
+import type {
+    ActionRoll,
+    CheckRoll,
+    MinifiedActionRoll,
+    MinifiedCheckRoll,
+    MinifiedRequestGroup,
+    RequestGroup,
+    RequestRoll,
+} from "./types.ts";
 
 const actions = new Map<string, string>();
 const allSkills = new Map<string, string>();
@@ -124,4 +132,129 @@ function getLabel(roll: RequestRoll): string | undefined {
     }
 }
 
-export { actionData, hasNoContent, prepareActionData, prepareSkillData, rollToInline, skillData };
+async function compressToBase64(groups: RequestGroup[]): Promise<string> {
+    const minified: MinifiedRequestGroup[] = [];
+    for (const group of groups) {
+        const mGroup: MinifiedRequestGroup = {
+            i: group.id,
+            r: [],
+            ...(group.title ? { t: group.title } : {}),
+        };
+        for (const roll of group.rolls) {
+            if (roll.type === "action") {
+                const mRoll: MinifiedActionRoll = {
+                    i: roll.id,
+                    d: roll.dc,
+                    sl: roll.slug,
+                    t: "a",
+                    ...(roll.label ? { l: roll.label } : {}),
+                    ...(roll.statistic ? { s: roll.statistic } : {}),
+                    ...(roll.variant ? { v: roll.variant } : {}),
+                };
+                mGroup.r.push(mRoll);
+            } else if (roll.type === "check") {
+                const mRoll: MinifiedCheckRoll = {
+                    i: roll.id,
+                    d: roll.dc,
+                    sl: roll.slug,
+                    t: "c",
+                    ...(roll.label ? { l: roll.label } : {}),
+                    ...(roll.adjustment ? { a: roll.adjustment } : {}),
+                    ...(roll.traits ? { tr: roll.traits } : {}),
+                };
+                mGroup.r.push(mRoll);
+            }
+        }
+        minified.push(mGroup);
+    }
+
+    const byteArray: Uint8Array = new TextEncoder().encode(JSON.stringify(minified));
+    const cs: CompressionStream = new CompressionStream("gzip");
+    const writer = cs.writable.getWriter();
+    writer.write(byteArray);
+    writer.close();
+    const result = await new Response(cs.readable).arrayBuffer();
+
+    return bufferToBase64(result);
+}
+
+async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
+    const buffer = await base64ToBuffer(string);
+    const byteArray = new Uint8Array(buffer);
+    const cs: DecompressionStream = new DecompressionStream("gzip");
+    const writer = cs.writable.getWriter();
+    writer.write(byteArray);
+    writer.close();
+    const result = await new Response(cs.readable).arrayBuffer();
+    const mGroups: MinifiedRequestGroup[] = JSON.parse(new TextDecoder().decode(result));
+
+    const groups: RequestGroup[] = [];
+    for (const group of mGroups) {
+        const g: RequestGroup = {
+            id: group.i,
+            rolls: [],
+            title: group.t ?? "",
+        };
+        for (const roll of group.r) {
+            if (roll.t === "a") {
+                const r: ActionRoll = {
+                    id: roll.i,
+                    dc: roll.d,
+                    label: roll.l ?? "",
+                    type: "action",
+                    slug: roll.sl,
+                    statistic: roll.s,
+                    variant: roll.v,
+                };
+                g.rolls.push(r);
+            } else if (roll.t === "c") {
+                const r: CheckRoll = {
+                    id: roll.i,
+                    dc: roll.d,
+                    label: roll.l ?? "",
+                    traits: roll.tr ?? [],
+                    type: "check",
+                    slug: roll.sl,
+                    adjustment: roll.a,
+                };
+                g.rolls.push(r);
+            }
+        }
+        groups.push(g);
+    }
+
+    return groups;
+}
+
+async function base64ToBuffer(base64: string): Promise<Uint8Array> {
+    const dataUrl = "data:application/octet-binary;base64," + base64;
+    const res = await fetch(dataUrl);
+    const buffer = await res.arrayBuffer();
+    return new Uint8Array(buffer);
+}
+
+async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
+    const blob = new Blob([buffer], { type: "application/octet-binary" });
+    const fileReader = new FileReader();
+    const { promise, resolve, reject } = Promise.withResolvers<string>();
+    fileReader.onload = function () {
+        const dataUrl = fileReader.result;
+        if (typeof dataUrl === "string") {
+            resolve(dataUrl.slice(dataUrl.indexOf(",") + 1));
+        }
+        reject("Failed to convert ArraBuffer to Base64 string!");
+    };
+    fileReader.readAsDataURL(blob);
+    return promise;
+}
+
+export {
+    actionData,
+    compressToBase64,
+    decompressFromBase64,
+    hasNoContent,
+    prepareActionData,
+    prepareSkillData,
+    rollToInline,
+    skillData,
+};
