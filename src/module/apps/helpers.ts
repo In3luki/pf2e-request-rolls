@@ -179,8 +179,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
 }
 
 async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
-    const buffer = await base64ToBuffer(string);
-    const byteArray = new Uint8Array(buffer);
+    const byteArray = await base64ToUnit8Array(string);
     const cs: DecompressionStream = new DecompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
@@ -226,7 +225,7 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     return groups;
 }
 
-async function base64ToBuffer(base64: string): Promise<Uint8Array> {
+async function base64ToUnit8Array(base64: string): Promise<Uint8Array> {
     const dataUrl = "data:application/octet-binary;base64," + base64;
     const res = await fetch(dataUrl);
     const buffer = await res.arrayBuffer();
@@ -237,12 +236,15 @@ async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
     const blob = new Blob([buffer], { type: "application/octet-binary" });
     const fileReader = new FileReader();
     const { promise, resolve, reject } = Promise.withResolvers<string>();
-    fileReader.onload = function () {
+    fileReader.onload = () => {
         const dataUrl = fileReader.result;
         if (typeof dataUrl === "string") {
             resolve(dataUrl.slice(dataUrl.indexOf(",") + 1));
         }
         reject("Failed to convert ArraBuffer to Base64 string!");
+    };
+    fileReader.onerror = () => {
+        reject("Error reading Base64 string!");
     };
     fileReader.readAsDataURL(blob);
     return promise;

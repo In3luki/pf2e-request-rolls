@@ -112,6 +112,7 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
             },
             rollupOptions: {
                 output: {
+                    assetFileNames: "styles/request-rolls.css",
                     chunkFileNames: "[name].mjs",
                     entryFileNames: "main.mjs",
                     manualChunks: {

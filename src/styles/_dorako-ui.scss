@@ -1,0 +1,16 @@
+[data-theme][data-color-scheme="dark"] {
+    --pf2e-rr--preview-bg-color: #888;
+    --pf2e-rr--preview-border-color: var(--color-dark-3);
+}
+
+[data-theme][data-color-scheme="light"] {
+    --pf2e-rr--preview-bg-color: #999;
+    --pf2e-rr--preview-border-color: var(--color-dark-3);
+}
+
+[data-theme][data-dorako-ui-scope="unlimited"] {
+    div.pf2e-rr--history {
+        top: 28px;
+        background: var(--window-app-background);
+    }
+}

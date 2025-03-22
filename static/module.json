@@ -26,7 +26,7 @@
     ],
     "esmodules": ["main.mjs", "vendor.mjs"],
     "socket": true,
-    "styles": ["main.css"],
+    "styles": ["styles/request-rolls.css"],
     "languages": [
         {
             "lang": "en",

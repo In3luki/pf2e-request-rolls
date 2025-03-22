@@ -4,6 +4,7 @@ import type { SocketRollRequest } from "@module/apps/types.ts";
 import { htmlClosest } from "@util";
 import * as R from "remeda";
 import { registerSettings } from "./module/settings/register-settings.ts";
+import "./styles/global.scss";
 
 globalThis.requestRolls = {
     GMDialog,
@@ -21,7 +22,7 @@ Hooks.once("init", () => {
 
 Hooks.once("setup", () => {
     document.addEventListener("click", (event) => {
-        const link = htmlClosest(event.target, "a.pf2e-rr--inline-link");
+        const link = htmlClosest(event.target, "a.pf2e--request-rolls-inline-link");
         if (!link?.dataset.groups) return;
         event.preventDefault();
         requestRolls.GMDialog.fromString(link.dataset.groups);
@@ -95,7 +96,7 @@ async function enricher(match: RegExpMatchArray): Promise<HTMLElement | null> {
     if (!match.groups?.data) return null;
 
     const anchor = document.createElement("a");
-    anchor.classList.add("inline-check", "pf2e-rr--inline-link");
+    anchor.classList.add("inline-check", "pf2e--request-rolls-inline-link");
     anchor.dataset.groups = match.groups.data;
     const icon = document.createElement("i");
     icon.classList.add("fa-solid", "fa-dice");
