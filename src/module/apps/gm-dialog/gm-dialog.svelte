@@ -515,4 +515,21 @@
     select {
         margin: 0.3em;
     }
+
+    :global {
+        #pf2e-request-rolls {
+            overflow: visible;
+
+            .window-content {
+                overflow: visible;
+                padding: 0 1rem;
+                gap: unset;
+            }
+
+            span[data-pf2-action] {
+                white-space: unset;
+                word-break: normal;
+            }
+        }
+    }
 </style>

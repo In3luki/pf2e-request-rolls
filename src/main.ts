@@ -3,7 +3,7 @@ import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRollRequest } from "@module/apps/types.ts";
 import { htmlClosest } from "@util";
 import * as R from "remeda";
-import { registerSettings } from "./module/settings/register-settings.ts";
+import { registerSettings } from "./settings/register-settings.ts";
 import "./styles/global.scss";
 
 globalThis.requestRolls = {
@@ -22,10 +22,11 @@ Hooks.once("init", () => {
 
 Hooks.once("setup", () => {
     document.addEventListener("click", (event) => {
-        const link = htmlClosest(event.target, "a.pf2e--request-rolls-inline-link");
-        if (!link?.dataset.groups) return;
+        const link = htmlClosest(event.target, "a.inline-check[data-rr-groups]");
+        if (!link?.dataset.rrGroups) return;
         event.preventDefault();
-        requestRolls.GMDialog.fromString(link.dataset.groups);
+        event.stopPropagation();
+        GMDialog.fromString(link.dataset.rrGroups);
     });
 });
 
@@ -97,13 +98,13 @@ async function enricher(match: RegExpMatchArray): Promise<HTMLElement | null> {
 
     const anchor = document.createElement("a");
     anchor.classList.add("inline-check", "pf2e--request-rolls-inline-link");
-    anchor.dataset.groups = match.groups.data;
+    anchor.dataset.rrGroups = match.groups.data;
     const icon = document.createElement("i");
     icon.classList.add("fa-solid", "fa-dice");
     anchor.appendChild(icon);
     const label = document.createElement("span");
     label.classList.add("label");
-    label.innerHTML = match.groups?.label ? match.groups?.label : game.i18n.localize("PF2ERequestRolls.GMDialog.Title");
+    label.innerHTML = match.groups?.label ? match.groups.label : game.i18n.localize("PF2ERequestRolls.GMDialog.Title");
     anchor.appendChild(label);
 
     return anchor;

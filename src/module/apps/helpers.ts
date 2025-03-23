@@ -168,8 +168,8 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
         minified.push(mGroup);
     }
 
-    const byteArray: Uint8Array = new TextEncoder().encode(JSON.stringify(minified));
-    const cs: CompressionStream = new CompressionStream("gzip");
+    const byteArray = new TextEncoder().encode(JSON.stringify(minified));
+    const cs = new CompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
     writer.close();
@@ -180,7 +180,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
 
 async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     const byteArray = await base64ToUnit8Array(string);
-    const cs: DecompressionStream = new DecompressionStream("gzip");
+    const cs = new DecompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
     writer.close();
@@ -241,10 +241,10 @@ async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
         if (typeof dataUrl === "string") {
             resolve(dataUrl.slice(dataUrl.indexOf(",") + 1));
         }
-        reject("Failed to convert ArraBuffer to Base64 string!");
+        reject("Failed to convert ArraBuffer to base64 string!");
     };
     fileReader.onerror = () => {
-        reject("Error reading Base64 string!");
+        reject("Error while converting the buffer to a base64 string!");
     };
     fileReader.readAsDataURL(blob);
     return promise;

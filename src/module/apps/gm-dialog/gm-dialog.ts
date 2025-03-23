@@ -24,7 +24,7 @@ class GMDialog extends SvelteApplicationMixin<
         },
         window: {
             icon: "fa-solid fa-dice",
-            contentClasses: ["pf2e--request-rolls", "standard-form"],
+            contentClasses: ["standard-form"],
             positioned: true,
             title: "PF2ERequestRolls.GMDialog.Title",
             controls: [
@@ -60,7 +60,6 @@ class GMDialog extends SvelteApplicationMixin<
 
     static async fromString(text: string): Promise<void> {
         const groups = await decompressFromBase64(text);
-        console.log(groups);
         new this({ initial: groups }).render({ force: true });
     }
 
