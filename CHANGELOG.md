@@ -1,3 +1,9 @@
+## 0.5.0
+
+### New Features
+
+-   Add roll results dialog for socket requests ([#17](https://github.com/In3luki/pf2e-request-rolls/pull/17))
+
 ## 0.4.0
 
 ### New Features

@@ -101,16 +101,28 @@ function hasNoContent(groups: RequestGroup[]): boolean {
     return !groups.some((g) => g.rolls.length > 0);
 }
 
-function rollToInline(roll: RequestRoll): string {
+function rollToInline(roll: RequestRoll, requestId?: string): string {
     const label = getLabel(roll);
     switch (roll.type) {
         case "action": {
-            return `[[/act ${roll.slug}${roll.variant ? ` variant=${roll.variant}` : ""} dc=${roll.dc}${roll.statistic ? ` statistic=${roll.statistic}` : ""}]]${label ? `{${label}}` : ""}`;
+            const parts: string[] = ["[[/act", roll.slug];
+            if (roll.variant) parts.push(`variant=${roll.variant}`);
+            if (roll.statistic) parts.push(`statistic=${roll.statistic}`);
+            const options: string[] = [`request-rolls-roll-id:${roll.id}`];
+            if (requestId) options.push(`request-rolls-id:${requestId}`);
+
+            return `${parts.join(" ")} options=${options}]]${label ? `{${label}}` : ""}`;
         }
         case "check": {
-            const adjustment = roll.adjustment ? `|adjustment:${roll.adjustment}` : "";
-            const traits = roll.traits.length ? `|traits:${roll.traits}` : "";
-            return `@Check[${roll.slug}|dc:${roll.dc}${adjustment}${traits}]${label ? `{${label}}` : ""}`;
+            const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
+            if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
+            if (roll.traits.length) parts.push(`|traits:${roll.traits}`);
+            const options: string[] = [`request-rolls-roll-id:${roll.id}`];
+            if (requestId) options.push(`request-rolls-id:${requestId}`);
+            parts.push(`|options:${options}]`);
+            if (label) parts.push(`{${label}}`);
+
+            return parts.join("");
         }
         default:
             return "";
@@ -168,8 +180,8 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
         minified.push(mGroup);
     }
 
-    const byteArray: Uint8Array = new TextEncoder().encode(JSON.stringify(minified));
-    const cs: CompressionStream = new CompressionStream("gzip");
+    const byteArray = new TextEncoder().encode(JSON.stringify(minified));
+    const cs = new CompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
     writer.close();
@@ -179,9 +191,8 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
 }
 
 async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
-    const buffer = await base64ToBuffer(string);
-    const byteArray = new Uint8Array(buffer);
-    const cs: DecompressionStream = new DecompressionStream("gzip");
+    const byteArray = await base64ToUnit8Array(string);
+    const cs = new DecompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
     writer.close();
@@ -226,7 +237,7 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     return groups;
 }
 
-async function base64ToBuffer(base64: string): Promise<Uint8Array> {
+async function base64ToUnit8Array(base64: string): Promise<Uint8Array> {
     const dataUrl = "data:application/octet-binary;base64," + base64;
     const res = await fetch(dataUrl);
     const buffer = await res.arrayBuffer();
@@ -237,12 +248,15 @@ async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
     const blob = new Blob([buffer], { type: "application/octet-binary" });
     const fileReader = new FileReader();
     const { promise, resolve, reject } = Promise.withResolvers<string>();
-    fileReader.onload = function () {
+    fileReader.onload = () => {
         const dataUrl = fileReader.result;
         if (typeof dataUrl === "string") {
             resolve(dataUrl.slice(dataUrl.indexOf(",") + 1));
         }
-        reject("Failed to convert ArraBuffer to Base64 string!");
+        reject("Failed to convert ArraBuffer to base64 string!");
+    };
+    fileReader.onerror = () => {
+        reject("Error while converting the buffer to a base64 string!");
     };
     fileReader.readAsDataURL(blob);
     return promise;

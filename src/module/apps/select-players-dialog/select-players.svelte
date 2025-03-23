@@ -11,11 +11,13 @@
 </script>
 
 <div class="players">
-    <div class="form-group">
-        <label for="select-all">{game.i18n.localize("PF2ERequestRolls.SelectPlayersDialog.SelectAllLabel")}</label>
-        <input type="checkbox" id="select-all" checked onclick={onSelectAllClick} />
-    </div>
-    <hr />
+    {#if props.state.players.length > 1}
+        <div class="form-group">
+            <label for="select-all">{game.i18n.localize("PF2ERequestRolls.SelectPlayersDialog.SelectAllLabel")}</label>
+            <input type="checkbox" id="select-all" checked onclick={onSelectAllClick} />
+        </div>
+        <hr />
+    {/if}
     {#each props.state.players as player (player.id)}
         <div class="form-group">
             <label for={player.id}>{player.name}</label>

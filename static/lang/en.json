@@ -30,6 +30,10 @@
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
         },
+        "ResultsDialog": {
+            "ResultLabel": "Result",
+            "Title": "Roll Results"
+        },
         "RollDialog": {
             "Title": "Requested Rolls"
         },
@@ -41,6 +45,10 @@
             "GMDialog": {
                 "AutoCloseName": "Close GM dialog automatically?",
                 "AutoCloseHint": "Whether the dialog should be closed automatically after a request was sent."
+            },
+            "ResultsDialog": {
+                "ShowName": "Show results dialog?",
+                "ShowHint": "Whether to show the results dialog after a request was sent."
             },
             "RollDialog": {
                 "AutoCloseName": "Close roll dialog automatically?",

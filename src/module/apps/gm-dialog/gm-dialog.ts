@@ -9,6 +9,7 @@ import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
 import { actionData, decompressFromBase64, hasNoContent, rollToInline, skillData } from "../helpers.ts";
+import { ResultsDialog } from "../results-dialog/results-dialog.ts";
 import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
@@ -24,7 +25,7 @@ class GMDialog extends SvelteApplicationMixin<
         },
         window: {
             icon: "fa-solid fa-dice",
-            contentClasses: ["standard-form"],
+            contentClasses: ["pf2e--request-rolls", "standard-form"],
             positioned: true,
             title: "PF2ERequestRolls.GMDialog.Title",
             controls: [
@@ -131,18 +132,18 @@ class GMDialog extends SvelteApplicationMixin<
         }
 
         const container = document.createElement("div");
-        container.classList.add("pf2e-rr--container");
+        container.classList.add("pf2e--request-rolls-container");
         for (const group of groups) {
             if (group.title) {
                 const header = document.createElement("div");
-                header.classList.add("pf2e-rr--header");
+                header.classList.add("header");
                 container.appendChild(header);
                 const strong = document.createElement("strong");
                 strong.innerHTML = group.title;
                 header.appendChild(strong);
             }
             const div = document.createElement("div");
-            div.classList.add("pf2e-rr--roll-container");
+            div.classList.add("roll-container");
             container.appendChild(div);
             for (const roll of group.rolls) {
                 div.innerHTML += rollToInline(roll);
@@ -206,6 +207,11 @@ class GMDialog extends SvelteApplicationMixin<
         ui.notifications.info("PF2ERequestRolls.GMDialog.RequestSuccessful", { localize: true });
 
         await this.#updateHistory(groups, id);
+
+        if (game.settings.get("pf2e-request-rolls", "showResultsDialog")) {
+            new ResultsDialog({ request: message }).render({ force: true });
+        }
+
         if (game.settings.get("pf2e-request-rolls", "gmDialog.autoClose")) {
             this.close();
         }

@@ -517,22 +517,6 @@
     }
 
     :global {
-        .theme-dark #pf2e-request-rolls {
-            --visibility-gm-bg: var(--color-dark-6);
-            --pf2e-rr--preview-bg-color: var(--color-dark-2);
-            --pf2e-rr--preview-border-color: var(--color-dark-3);
-
-            .pf2e-rr--history {
-                top: 0px;
-            }
-        }
-
-        .theme-light #pf2e-request-rolls,
-        .application:not([data-theme]) #pf2e-request-rolls {
-            --pf2e-rr--preview-bg-color: #999;
-            --pf2e-rr--preview-border-color: var(--color-dark-3);
-        }
-
         #pf2e-request-rolls {
             overflow: visible;
 
@@ -542,51 +526,10 @@
                 gap: unset;
             }
 
-            span[data-pf2-action] {
+            span[data-pf2-action],
+            a[data-pf2-check] {
                 white-space: unset;
                 word-break: normal;
-            }
-        }
-
-        .pf2e-rr--roll-container {
-            display: flex;
-            flex-direction: column;
-
-            a.inline-check,
-            span[data-pf2-action] {
-                width: fit-content;
-                margin-bottom: 5px;
-                white-space: unset;
-                word-break: normal;
-            }
-        }
-
-        .pf2e-rr--roll-container:not(:last-child) {
-            margin-bottom: 0.5em;
-        }
-
-        .pf2e-rr--inline-link {
-            i {
-                margin-right: 0.25em;
-            }
-        }
-
-        /* DorakoUI */
-
-        [data-theme][data-color-scheme="dark"] {
-            --pf2e-rr--preview-bg-color: #888;
-            --pf2e-rr--preview-border-color: var(--color-dark-3);
-        }
-
-        [data-theme][data-color-scheme="light"] {
-            --pf2e-rr--preview-bg-color: #999;
-            --pf2e-rr--preview-border-color: var(--color-dark-3);
-        }
-
-        [data-theme][data-dorako-ui-scope="unlimited"] {
-            div.pf2e-rr--history {
-                top: 28px;
-                background: var(--window-app-background);
             }
         }
     }

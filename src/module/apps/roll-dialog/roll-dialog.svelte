@@ -1,14 +1,15 @@
 <script lang="ts">
     import type { RollDialogContext } from "./roll-dialog.ts";
     import { rollToInline } from "../helpers.ts";
+    import { htmlQuery } from "@util";
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
 
-    function onClickRoll(): void {
-        if (game.settings.get("pf2e-request-rolls", "rollDialog.autoClose")) {
-            props.foundryApp.close();
-        }
+    function onClickRoll(event: MouseEvent & { currentTarget: HTMLDivElement }): void {
+        const el = htmlQuery(event.currentTarget, "span");
+        if (!el) return;
+        el.style.textDecoration = "line-through";
     }
 </script>
 
@@ -20,14 +21,14 @@
                     <strong>{group.title}</strong>
                 </div>
             </div>
-            <!-- svelte-ignore a11y_click_events_have_key_events -->
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
-            <div class="rolls" onclick={() => onClickRoll()}>
+            <div class="rolls">
                 {#each group.rolls as roll}
-                    {#await TextEditor.enrichHTML(rollToInline(roll))}
+                    {#await TextEditor.enrichHTML(rollToInline(roll, props.request.id))}
                         <div>Loading...</div>
                     {:then rollHTML}
-                        <div class="roll">
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <div class="roll" onclick={onClickRoll}>
                             {@html rollHTML}
                         </div>
                     {/await}
