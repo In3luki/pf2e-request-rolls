@@ -526,7 +526,8 @@
                 gap: unset;
             }
 
-            span[data-pf2-action] {
+            span[data-pf2-action],
+            a[data-pf2-check] {
                 white-space: unset;
                 word-break: normal;
             }

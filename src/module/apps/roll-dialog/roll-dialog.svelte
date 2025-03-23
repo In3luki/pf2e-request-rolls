@@ -7,9 +7,9 @@
     const groups = $state(props.request.groups);
 
     function onClickRoll(event: MouseEvent & { currentTarget: HTMLDivElement }): void {
-        const label = htmlQuery(event.currentTarget, "span.label");
-        if (!label) return;
-        label.style.textDecoration = "line-through";
+        const el = htmlQuery(event.currentTarget, "span");
+        if (!el) return;
+        el.style.textDecoration = "line-through";
     }
 </script>
 

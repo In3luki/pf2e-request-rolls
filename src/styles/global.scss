@@ -1,19 +1,21 @@
 @use "dorako-ui";
 
-.theme-dark #pf2e-request-rolls {
+.theme-dark .pf2e--request-rolls {
     --visibility-gm-bg: var(--color-dark-6);
     --pf2e-rr--preview-bg-color: var(--color-dark-2);
     --pf2e-rr--preview-border-color: var(--color-dark-3);
+    --pf2e-rr-results-bg-color: var(--inline-link-bg);
 
     .pf2e-rr--history {
         top: 0px;
     }
 }
 
-.theme-light #pf2e-request-rolls,
-.application:not([data-theme]) #pf2e-request-rolls {
+.theme-light .pf2e--request-rolls,
+.theme-light .application:not([data-theme]) .pf2e--request-rolls {
     --pf2e-rr--preview-bg-color: #999;
     --pf2e-rr--preview-border-color: var(--color-dark-3);
+    --pf2e-rr-results-bg-color: var(--inline-link-bg);
 }
 
 // Chat messages
