@@ -101,16 +101,28 @@ function hasNoContent(groups: RequestGroup[]): boolean {
     return !groups.some((g) => g.rolls.length > 0);
 }
 
-function rollToInline(roll: RequestRoll): string {
+function rollToInline(roll: RequestRoll, requestId?: string): string {
     const label = getLabel(roll);
     switch (roll.type) {
         case "action": {
-            return `[[/act ${roll.slug}${roll.variant ? ` variant=${roll.variant}` : ""} dc=${roll.dc}${roll.statistic ? ` statistic=${roll.statistic}` : ""}]]${label ? `{${label}}` : ""}`;
+            const parts: string[] = ["[[/act", roll.slug];
+            if (roll.variant) parts.push(`variant=${roll.variant}`);
+            if (roll.statistic) parts.push(`statistic=${roll.statistic}`);
+            const options: string[] = [`request-rolls-roll-id:${roll.id}`];
+            if (requestId) options.push(`request-rolls-id:${requestId}`);
+
+            return `${parts.join(" ")} options=${options}]]${label ? `{${label}}` : ""}`;
         }
         case "check": {
-            const adjustment = roll.adjustment ? `|adjustment:${roll.adjustment}` : "";
-            const traits = roll.traits.length ? `|traits:${roll.traits}` : "";
-            return `@Check[${roll.slug}|dc:${roll.dc}${adjustment}${traits}]${label ? `{${label}}` : ""}`;
+            const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
+            if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
+            if (roll.traits.length) parts.push(`|traits:${roll.traits}`);
+            const options: string[] = [`request-rolls-roll-id:${roll.id}`];
+            if (requestId) options.push(`request-rolls-id:${requestId}`);
+            parts.push(`|options:${options}]`);
+            if (label) parts.push(`{${label}}`);
+
+            return parts.join("");
         }
         default:
             return "";
