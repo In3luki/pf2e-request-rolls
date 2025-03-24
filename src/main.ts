@@ -59,7 +59,7 @@ Hooks.once("ready", () => {
         switch (request.type) {
             case "css-update": {
                 if (game.user === sender) return;
-                requestRolls.refreshCSS(request.data);
+                requestRolls.refreshCSS({ css: request.data });
                 break;
             }
             case "roll-request": {

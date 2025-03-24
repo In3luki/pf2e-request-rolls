@@ -1,4 +1,4 @@
-import type { CssSettings } from "src/global.ts";
+import type { CssSettings } from "src/settings/data.svelte.ts";
 
 interface BaseRoll {
     id: string;
