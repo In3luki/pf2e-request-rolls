@@ -1,3 +1,5 @@
+import type { CssSettings } from "src/settings/data.svelte.ts";
+
 interface BaseRoll {
     id: string;
     dc: number;
@@ -75,10 +77,17 @@ interface SocketRollRequest {
     groups: RequestGroup[];
     id: string;
     users: string[];
+    type: "roll-request";
+}
+
+interface SocketCSSUpdate {
+    data: CssSettings;
+    type: "css-update";
 }
 
 type LabeledValue = { label: string; value: string };
 type RequestRoll = ActionRoll | CheckRoll;
+type SocketRequest = SocketCSSUpdate | SocketRollRequest;
 
 export type {
     ActionRoll,
@@ -90,5 +99,7 @@ export type {
     RequestGroup,
     RequestHistory,
     RequestRoll,
+    SocketCSSUpdate,
+    SocketRequest,
     SocketRollRequest,
 };

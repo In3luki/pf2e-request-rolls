@@ -1,3 +1,9 @@
+## 0.5.1
+
+### New Features
+
+-   Add CSS override settings ([#18](https://github.com/In3luki/pf2e-request-rolls/pull/18))
+
 ## 0.5.0
 
 ### New Features

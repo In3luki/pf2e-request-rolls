@@ -3,6 +3,7 @@
 
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { RequestGroup, RequestHistory } from "@module/apps/types.ts";
+import type { CssSettings } from "./settings/data.svelte.ts";
 
 declare global {
     namespace globalThis {
@@ -14,6 +15,9 @@ declare global {
         get(module: "pf2e-request-rolls", setting: "history"): RequestHistory[];
         get(module: "pf2e-request-rolls", setting: "gmDialog.autoClose"): boolean;
         get(module: "pf2e-request-rolls", setting: "showResultsDialog"): boolean;
+        get(module: "pf2e-request-rolls", setting: "css.GroupContainer"): string;
+        get(module: "pf2e-request-rolls", setting: "css.GroupHeader"): string;
+        get(module: "pf2e-request-rolls", setting: "css.RollContainer"): string;
 
         set(module: "pf2e-request-rolls", setting: "history", value: RequestGroup[]): Promise<RequestHistory[]>;
     }
@@ -22,4 +26,6 @@ declare global {
 interface RequestRollsGlobal {
     GMDialog: typeof GMDialog;
     RollDialog: typeof RollDialog;
+    css: CssSettings;
+    refreshCSS: (args?: { css?: CssSettings; emit?: boolean }) => void;
 }

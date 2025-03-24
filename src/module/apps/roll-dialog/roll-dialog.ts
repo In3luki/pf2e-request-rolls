@@ -5,6 +5,7 @@ import type {
 import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
 import type { SocketRollRequest } from "../types.ts";
+import { testRequest } from "./data.ts";
 import Root from "./roll-dialog.svelte";
 
 class RollDialog extends SvelteApplicationMixin<
@@ -28,6 +29,11 @@ class RollDialog extends SvelteApplicationMixin<
     declare $state: RollDialogContext["state"];
 
     protected root = Root;
+
+    static async openTestDialog(): Promise<RollDialog> {
+        const request = fu.deepClone(testRequest);
+        return new this({ request }).render(true);
+    }
 
     protected override _initializeApplicationOptions(
         options: Partial<RollDialogConfiguration>,

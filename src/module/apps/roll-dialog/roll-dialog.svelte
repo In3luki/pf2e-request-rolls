@@ -2,6 +2,7 @@
     import type { RollDialogContext } from "./roll-dialog.ts";
     import { rollToInline } from "../helpers.ts";
     import { htmlQuery } from "@util";
+    import { cssSettings } from "src/settings/data.svelte.ts";
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
@@ -13,15 +14,15 @@
     }
 </script>
 
-<div class="preview">
+<div class="preview" style={cssSettings.outerContainer}>
     {#each groups as group (group.id)}
-        <div class="request-container">
-            <div class="header">
+        <div class="request-container" style={cssSettings.groupContainer}>
+            <div class="header" style={cssSettings.groupHeader}>
                 <div class="title">
                     <strong>{group.title}</strong>
                 </div>
             </div>
-            <div class="rolls">
+            <div class="rolls" style={cssSettings.rollContainer}>
                 {#each group.rolls as roll}
                     {#await TextEditor.enrichHTML(rollToInline(roll, props.request.id))}
                         <div>Loading...</div>
