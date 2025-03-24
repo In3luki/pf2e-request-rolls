@@ -42,6 +42,16 @@
             "Title": "Select Players"
         },
         "Settings": {
+            "CSS": {
+                "GroupContainerName": "Group Container Custom CSS",
+                "GroupContainerHint": "CSS overrides for the roll group container element.",
+                "GroupHeaderName": "Group Header Custom CSS",
+                "GroupHeaderHint": "CSS overrides for the roll group header element.",
+                "OuterContainerName": "Outer Container Custom CSS",
+                "OuterContainerHint": "CSS overrides for the outermost container element.",
+                "RollContainerName": "Roll Container Custom CSS",
+                "RollContainerHint": "CSS overrides for the individual roll container elements."
+            },
             "GMDialog": {
                 "AutoCloseName": "Close GM dialog automatically?",
                 "AutoCloseHint": "Whether the dialog should be closed automatically after a request was sent."

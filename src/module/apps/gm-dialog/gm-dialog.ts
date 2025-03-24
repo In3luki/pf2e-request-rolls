@@ -64,6 +64,10 @@ class GMDialog extends SvelteApplicationMixin<
         new this({ initial: groups }).render({ force: true });
     }
 
+    static async open(): Promise<GMDialog> {
+        return new this().render({ force: true });
+    }
+
     protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<GMDialogContext> {
         return {
             actions: actionData,
@@ -131,20 +135,37 @@ class GMDialog extends SvelteApplicationMixin<
             return false;
         }
 
+        const css = requestRolls.css;
         const container = document.createElement("div");
         container.classList.add("pf2e--request-rolls-container");
+        if (css.outerContainer) {
+            container.style = css.outerContainer;
+        }
         for (const group of groups) {
+            const groupEl = document.createElement("div");
+            groupEl.classList.add("group-container");
+            if (css.groupContainer) {
+                groupEl.style = css.groupContainer;
+            }
             if (group.title) {
                 const header = document.createElement("div");
+                if (css.groupHeader) {
+                    header.style = css.groupHeader;
+                }
                 header.classList.add("header");
                 container.appendChild(header);
                 const strong = document.createElement("strong");
                 strong.innerHTML = group.title;
                 header.appendChild(strong);
+                groupEl.appendChild(header);
             }
             const div = document.createElement("div");
             div.classList.add("roll-container");
-            container.appendChild(div);
+            if (css.rollContainer) {
+                div.style = css.rollContainer;
+            }
+            groupEl.appendChild(div);
+            container.appendChild(groupEl);
             for (const roll of group.rolls) {
                 div.innerHTML += rollToInline(roll);
             }
@@ -201,6 +222,7 @@ class GMDialog extends SvelteApplicationMixin<
             id,
             groups,
             users,
+            type: "roll-request",
         };
 
         game.socket.emit("module.pf2e-request-rolls", message);

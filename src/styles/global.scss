@@ -22,20 +22,19 @@
 
 .pf2e--request-rolls {
     &-container {
-        .roll-container {
-            display: flex;
-            flex-direction: column;
-
-            a.inline-check,
-            span[data-pf2-action] {
-                width: fit-content;
-                margin-bottom: 5px;
-                white-space: unset;
-                word-break: normal;
-            }
-
-            &:not(:last-child) {
+        .group-container {
+            .roll-container {
+                display: flex;
+                flex-direction: column;
                 margin-bottom: 0.5em;
+
+                a.inline-check,
+                span[data-pf2-action] {
+                    width: fit-content;
+                    margin-bottom: 5px;
+                    white-space: unset;
+                    word-break: normal;
+                }
             }
         }
     }
