@@ -1,3 +1,9 @@
+## 0.5.2
+
+### Bugfixes
+
+-   Restore action roll DC in generate inline rolls ([#19](https://github.com/In3luki/pf2e-request-rolls/pull/19))
+
 ## 0.5.1
 
 ### New Features
