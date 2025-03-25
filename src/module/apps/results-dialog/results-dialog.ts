@@ -11,7 +11,7 @@ import type {
 } from "@pf2e/types/index.ts";
 import * as R from "remeda";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import type { RequestRoll, SocketRollRequest } from "../types.ts";
+import type { RequestGroup, RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./results-dialog.svelte";
 
 class ResultsDialog extends SvelteApplicationMixin<
@@ -104,22 +104,23 @@ class ResultsDialog extends SvelteApplicationMixin<
             ?.split(":")
             .at(1);
         if (!rollId) return;
-        const roll = ((): RequestRoll | null => {
+        const data = ((): { group: RequestGroup; roll: RequestRoll } | null => {
             for (const group of request.groups) {
                 for (const roll of group.rolls) {
-                    if (roll.id === rollId) return roll;
+                    if (roll.id === rollId) return { group, roll };
                 }
             }
             return null;
         })();
-        if (!roll) return;
+        if (!data) return;
         const result = (results ?? this.$state.results).find((r) => r.userId === message.author!.id);
         if (!result) return;
         if (context.isReroll) {
             result.reroll = options.includes("check:hero-point") ? "hero-point" : "other";
         }
         result.messageId = message.id;
-        result.roll = roll;
+        result.roll = data.roll;
+        result.groupLabel = data.group.title;
         result.outcome = context.outcome;
     }
 
@@ -145,10 +146,11 @@ interface RollResult {
     messageId?: string | null;
     name: string;
     userId: string;
+    groupLabel?: string;
     outcome?: DegreeOfSuccessString | null;
     roll?: RequestRoll | null;
     reroll?: "hero-point" | "other";
 }
 
 export { ResultsDialog };
-export type { ResultsDialogContext };
+export type { ResultsDialogContext, RollResult };
