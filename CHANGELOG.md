@@ -1,3 +1,9 @@
+## 0.5.3
+
+### Enhancements
+
+-   Add group labels to result dialog ([#21](https://github.com/In3luki/pf2e-request-rolls/pull/21))
+
 ## 0.5.2
 
 ### Bugfixes
