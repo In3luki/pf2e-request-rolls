@@ -17,6 +17,11 @@
             </div>
             {#if player.outcome && player.roll}
                 <div class="results">
+                    {#if player.groupLabel}
+                        <div class="group">
+                            {player.groupLabel}
+                        </div>
+                    {/if}
                     {#await TextEditor.enrichHTML(rollToInline(player.roll))}
                         <div>Loading...</div>
                     {:then rollHTML}
@@ -62,7 +67,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 3em;
+            min-height: 1.5em;
         }
 
         .results {
