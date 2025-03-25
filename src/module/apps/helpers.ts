@@ -105,7 +105,7 @@ function rollToInline(roll: RequestRoll, requestId?: string): string {
     const label = getLabel(roll);
     switch (roll.type) {
         case "action": {
-            const parts: string[] = ["[[/act", roll.slug];
+            const parts: string[] = ["[[/act", roll.slug, `dc=${roll.dc}`];
             if (roll.variant) parts.push(`variant=${roll.variant}`);
             if (roll.statistic) parts.push(`statistic=${roll.statistic}`);
             const options: string[] = [`request-rolls-roll-id:${roll.id}`];
