@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { ResultsDialogContext } from "./results-dialog.ts";
-    import { rollToInline } from "../helpers.ts";
+    import { getInlineLink } from "../helpers.ts";
 
     const props: ResultsDialogContext = $props();
 
@@ -22,7 +22,7 @@
                             {player.groupLabel}
                         </div>
                     {/if}
-                    {#await TextEditor.enrichHTML(rollToInline(player.roll))}
+                    {#await getInlineLink({ roll: player.roll })}
                         <div>Loading...</div>
                     {:then rollHTML}
                         <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -59,10 +59,6 @@
         flex-direction: column;
         margin-bottom: 1em;
 
-        .header {
-            margin-bottom: 0.5em;
-        }
-
         .no-result {
             display: flex;
             justify-content: center;
@@ -76,6 +72,10 @@
             background-color: var(--pf2e-rr-results-bg-color);
             border: 1px solid var(--pf2e-rr-results-bg-color);
             padding: 5px;
+
+            .group {
+                margin-bottom: 0.2em;
+            }
 
             .roll {
                 height: 1.5em;

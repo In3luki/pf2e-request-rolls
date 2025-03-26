@@ -3,7 +3,6 @@
 
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { RequestGroup, RequestHistory } from "@module/apps/types.ts";
-import type { CssSettings } from "./settings/data.svelte.ts";
 
 declare global {
     namespace globalThis {
@@ -26,6 +25,4 @@ declare global {
 interface RequestRollsGlobal {
     GMDialog: typeof GMDialog;
     RollDialog: typeof RollDialog;
-    css: CssSettings;
-    refreshCSS: (args?: { css?: CssSettings; emit?: boolean }) => void;
 }

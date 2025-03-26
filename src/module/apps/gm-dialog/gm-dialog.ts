@@ -7,6 +7,7 @@ import type { ChatMessagePF2e } from "@pf2e/types/index.ts";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
+import { cssSettings } from "src/settings/data.svelte.ts";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
 import { actionData, decompressFromBase64, hasNoContent, rollToInline, skillData } from "../helpers.ts";
 import { ResultsDialog } from "../results-dialog/results-dialog.ts";
@@ -135,7 +136,7 @@ class GMDialog extends SvelteApplicationMixin<
             return false;
         }
 
-        const css = requestRolls.css;
+        const css = cssSettings;
         const container = document.createElement("div");
         container.classList.add("pf2e--request-rolls-container");
         if (css.outerContainer) {

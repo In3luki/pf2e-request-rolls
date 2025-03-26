@@ -1,6 +1,6 @@
 <script lang="ts">
     import type { RollDialogContext } from "./roll-dialog.ts";
-    import { rollToInline } from "../helpers.ts";
+    import { getInlineLink } from "../helpers.ts";
     import { htmlQuery } from "@util";
     import { cssSettings } from "src/settings/data.svelte.ts";
 
@@ -24,7 +24,7 @@
             </div>
             <div class="rolls" style={cssSettings.rollContainer}>
                 {#each group.rolls as roll}
-                    {#await TextEditor.enrichHTML(rollToInline(roll, props.request.id))}
+                    {#await getInlineLink({ actor: game.user.character, roll, requestId: props.request.id })}
                         <div>Loading...</div>
                     {:then rollHTML}
                         <!-- svelte-ignore a11y_click_events_have_key_events -->

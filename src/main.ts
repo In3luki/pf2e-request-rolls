@@ -3,33 +3,12 @@ import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRequest } from "@module/apps/types.ts";
 import { htmlClosest } from "@util";
 import * as R from "remeda";
-import { cssSettings } from "./settings/data.svelte.ts";
-import { registerSettings } from "./settings/register-settings.ts";
+import { refreshCSS, registerSettings } from "./settings/register-settings.ts";
 import "./styles/global.scss";
 
 globalThis.requestRolls = {
     GMDialog,
     RollDialog,
-    css: cssSettings,
-    refreshCSS: ({ css, emit } = {}) => {
-        if (css) {
-            cssSettings.groupContainer = css.groupContainer;
-            cssSettings.groupHeader = css.groupHeader;
-            cssSettings.outerContainer = css.outerContainer;
-            cssSettings.rollContainer = css.rollContainer;
-        } else {
-            cssSettings.groupContainer = game.settings.get("pf2e-request-rolls", "css.GroupContainer");
-            cssSettings.groupHeader = game.settings.get("pf2e-request-rolls", "css.GroupHeader");
-            cssSettings.outerContainer = game.settings.get("pf2e-request-rolls", "css.OuterContainer");
-            cssSettings.rollContainer = game.settings.get("pf2e-request-rolls", "css.RollContainer");
-        }
-        if (emit) {
-            game.socket.emit("module.pf2e-request-rolls", {
-                data: css,
-                type: "css-update",
-            });
-        }
-    },
 };
 
 Hooks.once("init", () => {
@@ -40,7 +19,7 @@ Hooks.once("init", () => {
         enricher,
     });
 
-    requestRolls.refreshCSS();
+    refreshCSS();
 });
 
 Hooks.once("setup", () => {
@@ -59,7 +38,7 @@ Hooks.once("ready", () => {
         switch (request.type) {
             case "css-update": {
                 if (game.user === sender) return;
-                requestRolls.refreshCSS({ css: request.data });
+                refreshCSS({ css: request.data });
                 break;
             }
             case "roll-request": {
