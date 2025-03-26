@@ -1,16 +1,24 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import type { ActorPF2e, TokenPF2e } from "foundry-pf2e";
     import type { RollDialogContext } from "./roll-dialog.ts";
-    import type { RequestRoll } from "../types.ts";
     import { getInlineLink } from "../helpers.ts";
     import { cssSettings } from "src/settings/data.svelte.ts";
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
     const rolled: string[] = $state([]);
+    let actor: ActorPF2e | null = $state(canvas.tokens.controlled.at(0)?.actor ?? game.user.character);
 
-    function onClickRoll(roll: RequestRoll): void {
-        rolled.push(roll.id);
-    }
+    onMount(() => {
+        const hookId = Hooks.on("controlToken", (token: TokenPF2e) => {
+            actor = token.actor ?? game.user.character;
+        });
+
+        return () => {
+            Hooks.off("controlToken", hookId);
+        };
+    });
 </script>
 
 <div class="preview" style={cssSettings.outerContainer}>
@@ -23,12 +31,12 @@
             </div>
             <div class="rolls" style={cssSettings.rollContainer}>
                 {#each group.rolls as roll}
-                    {#await getInlineLink({ actor: game.user.character, roll, requestId: props.request.id })}
+                    {#await getInlineLink({ actor, roll, requestId: props.request.id })}
                         <div>Loading...</div>
                     {:then rollHTML}
                         <!-- svelte-ignore a11y_click_events_have_key_events -->
                         <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div class="roll" onclick={() => onClickRoll(roll)}>
+                        <div class="roll" onclick={() => rolled.push(roll.id)}>
                             {@html rollHTML}
                             <div class="rolled">
                                 {#if rolled.includes(roll.id)}
