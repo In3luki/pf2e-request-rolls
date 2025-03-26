@@ -1,4 +1,5 @@
 <script lang="ts">
+    import * as R from "remeda";
     import type { ResultsDialogContext } from "./results-dialog.ts";
     import { getInlineLink } from "../helpers.ts";
 
@@ -10,41 +11,43 @@
 </script>
 
 <div class="preview">
-    {#each props.state.results as player (player.userId)}
+    {#each props.state.results as result (result.userId)}
         <div class="result-container">
             <div class="header">
-                <strong>{player.name}</strong>
+                <strong>{result.name}</strong>
             </div>
-            {#if player.outcome && player.roll}
-                <div class="results">
-                    {#if player.groupLabel}
-                        <div class="group">
-                            {player.groupLabel}
-                        </div>
-                    {/if}
-                    {#await getInlineLink({ roll: player.roll })}
-                        <div>Loading...</div>
-                    {:then rollHTML}
-                        <!-- svelte-ignore a11y_click_events_have_key_events -->
-                        <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div class="roll" onclick={onClickRoll}>
-                            {@html rollHTML}
-                        </div>
-                    {/await}
-                    <div class="result degree-of-success">
-                        <span class="label">
-                            {game.i18n.localize("PF2ERequestRolls.ResultsDialog.ResultLabel")}:
-                        </span>
-                        <span class="outcome {player.outcome}">
-                            {game.i18n.localize(`PF2E.Check.Result.Degree.Check.${player.outcome}`)}
-                        </span>
-                        {#if player.reroll === "hero-point"}
-                            <i class="fa-solid fa-hospital-symbol reroll-indicator"></i>
-                        {:else if player.reroll === "other"}
-                            <i class="fa-solid fa-dice reroll-indicator"></i>
+            {#if R.keys(result.groups).length > 0}
+                {#each R.entries(result.groups) as [_id, group]}
+                    <div class="results">
+                        {#if group.label}
+                            <div class="group">
+                                {group.label}
+                            </div>
                         {/if}
+                        {#await getInlineLink({ roll: group.roll })}
+                            <div>Loading...</div>
+                        {:then rollHTML}
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
+                            <div class="roll" onclick={onClickRoll}>
+                                {@html rollHTML}
+                            </div>
+                        {/await}
+                        <div class="result degree-of-success">
+                            <span class="label">
+                                {game.i18n.localize("PF2ERequestRolls.ResultsDialog.ResultLabel")}:
+                            </span>
+                            <span class="outcome {group.outcome}">
+                                {game.i18n.localize(`PF2E.Check.Result.Degree.Check.${group.outcome}`)}
+                            </span>
+                            {#if group.reroll === "hero-point"}
+                                <i class="fa-solid fa-hospital-symbol reroll-indicator"></i>
+                            {:else if group.reroll === "other"}
+                                <i class="fa-solid fa-dice reroll-indicator"></i>
+                            {/if}
+                        </div>
                     </div>
-                </div>
+                {/each}
             {:else}
                 <div class="no-result"><i class="fa-solid fa-hourglass"></i></div>
             {/if}
@@ -64,6 +67,7 @@
             justify-content: center;
             align-items: center;
             min-height: 1.5em;
+            padding-top: 0.5em;
         }
 
         .results {

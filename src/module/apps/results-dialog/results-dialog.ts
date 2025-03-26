@@ -59,11 +59,13 @@ class ResultsDialog extends SvelteApplicationMixin<
             this.#findResultMessage(message);
         });
         this.#hooks.deleteChatMessage = Hooks.on("deleteChatMessage", (message: ChatMessagePF2e) => {
-            const result = this.$state.results.find((r) => r.messageId === message.id);
+            const result = this.$state.results.find((r) => r.userId === message.author?.id);
             if (result) {
-                result.messageId = null;
-                result.roll = null;
-                result.outcome = null;
+                const data = this.#findGroupAndRoll(message);
+                if (!data) return;
+                if (result.groups[data.group.id]) {
+                    delete result.groups[data.group.id];
+                }
             }
         });
     }
@@ -76,6 +78,7 @@ class ResultsDialog extends SvelteApplicationMixin<
 
     protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<ResultsDialogContext> {
         const results = this.options.request.users.map((id) => ({
+            groups: {},
             userId: id,
             name: game.users.get(id, { strict: true }).character?.name ?? "Unknown",
         }));
@@ -92,36 +95,54 @@ class ResultsDialog extends SvelteApplicationMixin<
     }
 
     #findResultMessage(message: ChatMessagePF2e, results?: RollResult[]): void {
-        if (!message.author?.id) return;
+        const data = this.#findGroupAndRoll(message);
+        if (!data) return;
+        const result = (results ?? this.$state.results).find((r) => r.userId === message.author?.id);
+        if (!result) return;
+        const group = result.groups[data.group.id];
+        const reroll = data.context.isReroll
+            ? data.context.options.includes("check:hero-point")
+                ? "hero-point"
+                : "other"
+            : null;
+        if (!group) {
+            result.groups[data.group.id] = {
+                label: data.group.title,
+                messageId: message.id,
+                outcome: data.context.outcome,
+                reroll,
+                roll: data.roll,
+            };
+            return;
+        }
+        group.label = data.group.title;
+        group.messageId = message.id;
+        group.outcome = data.context.outcome;
+        group.reroll = reroll;
+        group.roll = data.roll;
+    }
+
+    #findGroupAndRoll(
+        message: ChatMessagePF2e,
+    ): { context: CheckContextChatFlag; group: RequestGroup; roll: RequestRoll } | null {
+        if (!message.author?.id) return null;
         const request = this.options.request;
-        if (!request.users.includes(message.author.id)) return;
+        if (!request.users.includes(message.author.id)) return null;
         const context = message.flags.pf2e.context;
-        if (!this.#isCheckMessageContext(context)) return;
+        if (!this.#isCheckMessageContext(context)) return null;
         const options = context.options;
-        if (!options.includes(`request-rolls-id:${request.id}`)) return;
+        if (!options.includes(`request-rolls-id:${request.id}`)) return null;
         const rollId = options
             .find((o) => o.startsWith("request-rolls-roll-id:"))
             ?.split(":")
             .at(1);
-        if (!rollId) return;
-        const data = ((): { group: RequestGroup; roll: RequestRoll } | null => {
-            for (const group of request.groups) {
-                for (const roll of group.rolls) {
-                    if (roll.id === rollId) return { group, roll };
-                }
+        if (!rollId) return null;
+        for (const group of request.groups) {
+            for (const roll of group.rolls) {
+                if (roll.id === rollId) return { context, group, roll };
             }
-            return null;
-        })();
-        if (!data) return;
-        const result = (results ?? this.$state.results).find((r) => r.userId === message.author!.id);
-        if (!result) return;
-        if (context.isReroll) {
-            result.reroll = options.includes("check:hero-point") ? "hero-point" : "other";
         }
-        result.messageId = message.id;
-        result.roll = data.roll;
-        result.groupLabel = data.group.title;
-        result.outcome = context.outcome;
+        return null;
     }
 
     #isCheckMessageContext(context?: ChatContextFlag): context is CheckContextChatFlag {
@@ -143,13 +164,17 @@ interface ResultsDialogContext extends SvelteApplicationRenderContext {
 }
 
 interface RollResult {
-    messageId?: string | null;
     name: string;
     userId: string;
-    groupLabel?: string;
+    groups: Record<string, RollResultGroup>;
+}
+
+interface RollResultGroup {
+    label: string;
+    messageId: string | null;
     outcome?: DegreeOfSuccessString | null;
-    roll?: RequestRoll | null;
-    reroll?: "hero-point" | "other";
+    roll: RequestRoll;
+    reroll?: "hero-point" | "other" | null;
 }
 
 export { ResultsDialog };
