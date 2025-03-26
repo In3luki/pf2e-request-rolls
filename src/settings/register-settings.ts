@@ -1,3 +1,5 @@
+import { CssSettings, cssSettings } from "./data.svelte.ts";
+
 function registerSettings(): void {
     const currentUserId = (game.data as unknown as { userId: string }).userId;
 
@@ -33,7 +35,7 @@ function registerSettings(): void {
         scope: "world",
         type: String,
         default: "",
-        onChange: () => requestRolls.refreshCSS({ emit: true }),
+        onChange: () => refreshCSS({ emit: true }),
     });
 
     game.settings.register("pf2e-request-rolls", "css.GroupContainer", {
@@ -43,7 +45,7 @@ function registerSettings(): void {
         scope: "world",
         type: String,
         default: "",
-        onChange: () => requestRolls.refreshCSS({ emit: true }),
+        onChange: () => refreshCSS({ emit: true }),
     });
 
     game.settings.register("pf2e-request-rolls", "css.GroupHeader", {
@@ -53,7 +55,7 @@ function registerSettings(): void {
         scope: "world",
         type: String,
         default: "",
-        onChange: () => requestRolls.refreshCSS({ emit: true }),
+        onChange: () => refreshCSS({ emit: true }),
     });
 
     game.settings.register("pf2e-request-rolls", "css.RollContainer", {
@@ -63,8 +65,28 @@ function registerSettings(): void {
         scope: "world",
         type: String,
         default: "",
-        onChange: () => requestRolls.refreshCSS({ emit: true }),
+        onChange: () => refreshCSS({ emit: true }),
     });
 }
 
-export { registerSettings };
+function refreshCSS({ css, emit }: { css?: CssSettings; emit?: boolean } = {}): void {
+    if (css) {
+        cssSettings.groupContainer = css.groupContainer;
+        cssSettings.groupHeader = css.groupHeader;
+        cssSettings.outerContainer = css.outerContainer;
+        cssSettings.rollContainer = css.rollContainer;
+    } else {
+        cssSettings.groupContainer = game.settings.get("pf2e-request-rolls", "css.GroupContainer");
+        cssSettings.groupHeader = game.settings.get("pf2e-request-rolls", "css.GroupHeader");
+        cssSettings.outerContainer = game.settings.get("pf2e-request-rolls", "css.OuterContainer");
+        cssSettings.rollContainer = game.settings.get("pf2e-request-rolls", "css.RollContainer");
+    }
+    if (emit) {
+        game.socket.emit("module.pf2e-request-rolls", {
+            data: css,
+            type: "css-update",
+        });
+    }
+}
+
+export { refreshCSS, registerSettings };

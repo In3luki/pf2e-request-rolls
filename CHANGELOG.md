@@ -1,3 +1,15 @@
+## 0.6.0
+
+### New Features
+
+-   Add a tooltip showing total statistic modifier and proficiency rank for each roll in the roll request dialog ([#22](https://github.com/In3luki/pf2e-request-rolls/pull/22))
+-   Allow actor selection in the roll request window. Defaults to `game.user.character` if no token is selected ([#22](https://github.com/In3luki/pf2e-request-rolls/pull/22))
+
+### Enhancements
+
+-   Improve display of clicked links in the roll request dialog ([#22](https://github.com/In3luki/pf2e-request-rolls/pull/22))
+-   Show multiple results per user for rolls from different roll groups ([#22](https://github.com/In3luki/pf2e-request-rolls/pull/22))
+
 ## 0.5.3
 
 ### Enhancements
@@ -8,7 +20,7 @@
 
 ### Bugfixes
 
--   Restore action roll DC in generate inline rolls ([#19](https://github.com/In3luki/pf2e-request-rolls/pull/19))
+-   Restore action roll DC in generated inline rolls ([#19](https://github.com/In3luki/pf2e-request-rolls/pull/19))
 
 ## 0.5.1
 

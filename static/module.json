@@ -2,7 +2,7 @@
     "id": "pf2e-request-rolls",
     "title": "PF2e Request Rolls",
     "description": "Request rolls from players.",
-    "version": "0.5.3",
+    "version": "0.6.0",
     "compatibility": {
         "minimum": 12,
         "verified": "12.331"

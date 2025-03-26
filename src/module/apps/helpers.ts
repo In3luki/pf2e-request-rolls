@@ -1,5 +1,6 @@
-import type { Action, ActionVariant } from "@pf2e/types/index.ts";
-import { sortStringRecord } from "@util/misc.ts";
+import type { Action, ActionVariant, ActorPF2e, ZeroToFour } from "@pf2e/types/index.ts";
+import { htmlQuery } from "@util";
+import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import * as R from "remeda";
 import { ActionRenderData, GMDialogContext } from "./gm-dialog/gm-dialog.ts";
 import type {
@@ -144,6 +145,47 @@ function getLabel(roll: RequestRoll): string | undefined {
     }
 }
 
+async function getInlineLink({
+    actor,
+    roll,
+    requestId,
+}: {
+    actor?: ActorPF2e | null;
+    roll: RequestRoll;
+    requestId?: string;
+}): Promise<string> {
+    const enriched = await TextEditor.enrichHTML(rollToInline(roll, requestId));
+    const el = document.createElement("div");
+    el.innerHTML = enriched;
+    htmlQuery(el, "i[data-pf2-repost]")?.remove();
+    const data = getStatisticData(roll, actor);
+    if (data) {
+        const link = htmlQuery(el, "[data-pf2-dc]");
+        if (link) {
+            const proficiency =
+                data.rank !== null ? (game.i18n.localize(CONFIG.PF2E.proficiencyLevels[data.rank]) ?? null) : null;
+            link.dataset.tooltip = `${signedInteger(data.mod)} (${proficiency})`;
+            link.dataset.tooltipDirection = "UP";
+        }
+    }
+
+    return el.innerHTML;
+}
+
+function getStatisticData(
+    roll: RequestRoll,
+    actor?: ActorPF2e | null,
+): { mod: number; rank: ZeroToFour | null } | null {
+    const slug = roll.type === "action" && roll.statistic ? roll.statistic : roll.type === "check" ? roll.slug : null;
+    if (!actor || !slug) return null;
+    if (slug === "perception" && actor.perception) {
+        return { mod: actor.perception.mod, rank: actor.perception.rank };
+    }
+    const statistic = actor.skills?.[slug] ?? actor.saves?.[slug as keyof ConfigPF2e["PF2E"]["saves"]];
+    if (!statistic) return null;
+    return { mod: statistic.mod, rank: statistic.rank };
+}
+
 async function compressToBase64(groups: RequestGroup[]): Promise<string> {
     const minified: MinifiedRequestGroup[] = [];
     for (const group of groups) {
@@ -266,6 +308,7 @@ export {
     actionData,
     compressToBase64,
     decompressFromBase64,
+    getInlineLink,
     hasNoContent,
     prepareActionData,
     prepareSkillData,

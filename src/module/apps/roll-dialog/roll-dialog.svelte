@@ -1,17 +1,24 @@
 <script lang="ts">
+    import { onMount } from "svelte";
+    import type { ActorPF2e, TokenPF2e } from "foundry-pf2e";
     import type { RollDialogContext } from "./roll-dialog.ts";
-    import { rollToInline } from "../helpers.ts";
-    import { htmlQuery } from "@util";
+    import { getInlineLink } from "../helpers.ts";
     import { cssSettings } from "src/settings/data.svelte.ts";
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
+    const rolled: string[] = $state([]);
+    let actor: ActorPF2e | null = $state(canvas.tokens.controlled.at(0)?.actor ?? game.user.character);
 
-    function onClickRoll(event: MouseEvent & { currentTarget: HTMLDivElement }): void {
-        const el = htmlQuery(event.currentTarget, "span");
-        if (!el) return;
-        el.style.textDecoration = "line-through";
-    }
+    onMount(() => {
+        const hookId = Hooks.on("controlToken", (token: TokenPF2e) => {
+            actor = token.actor ?? game.user.character;
+        });
+
+        return () => {
+            Hooks.off("controlToken", hookId);
+        };
+    });
 </script>
 
 <div class="preview" style={cssSettings.outerContainer}>
@@ -24,13 +31,18 @@
             </div>
             <div class="rolls" style={cssSettings.rollContainer}>
                 {#each group.rolls as roll}
-                    {#await TextEditor.enrichHTML(rollToInline(roll, props.request.id))}
+                    {#await getInlineLink({ actor, roll, requestId: props.request.id })}
                         <div>Loading...</div>
                     {:then rollHTML}
                         <!-- svelte-ignore a11y_click_events_have_key_events -->
                         <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div class="roll" onclick={onClickRoll}>
+                        <div class="roll" onclick={() => rolled.push(roll.id)}>
                             {@html rollHTML}
+                            <div class="rolled">
+                                {#if rolled.includes(roll.id)}
+                                    <i class="fa-solid fa-dice"></i>
+                                {/if}
+                            </div>
                         </div>
                     {/await}
                 {/each}
@@ -58,7 +70,17 @@
             }
 
             .roll {
+                display: flex;
+                align-items: center;
                 margin-bottom: 0.5em;
+
+                .rolled {
+                    min-width: 1.6em;
+
+                    i {
+                        margin-left: 5px;
+                    }
+                }
             }
         }
     }
