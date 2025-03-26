@@ -1,16 +1,15 @@
 <script lang="ts">
     import type { RollDialogContext } from "./roll-dialog.ts";
+    import type { RequestRoll } from "../types.ts";
     import { getInlineLink } from "../helpers.ts";
-    import { htmlQuery } from "@util";
     import { cssSettings } from "src/settings/data.svelte.ts";
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
+    const rolled: string[] = $state([]);
 
-    function onClickRoll(event: MouseEvent & { currentTarget: HTMLDivElement }): void {
-        const el = htmlQuery(event.currentTarget, "span");
-        if (!el) return;
-        el.style.textDecoration = "line-through";
+    function onClickRoll(roll: RequestRoll): void {
+        rolled.push(roll.id);
     }
 </script>
 
@@ -29,8 +28,13 @@
                     {:then rollHTML}
                         <!-- svelte-ignore a11y_click_events_have_key_events -->
                         <!-- svelte-ignore a11y_no_static_element_interactions -->
-                        <div class="roll" onclick={onClickRoll}>
+                        <div class="roll" onclick={() => onClickRoll(roll)}>
                             {@html rollHTML}
+                            <div class="rolled">
+                                {#if rolled.includes(roll.id)}
+                                    <i class="fa-solid fa-dice"></i>
+                                {/if}
+                            </div>
                         </div>
                     {/await}
                 {/each}
@@ -58,7 +62,17 @@
             }
 
             .roll {
+                display: flex;
+                align-items: center;
                 margin-bottom: 0.5em;
+
+                .rolled {
+                    min-width: 1.6em;
+
+                    i {
+                        margin-left: 5px;
+                    }
+                }
             }
         }
     }
