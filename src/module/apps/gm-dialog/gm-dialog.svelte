@@ -337,9 +337,10 @@
 
 {#snippet check(roll: CheckRoll)}
     <div class="form-group">
-        <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
-        <select id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
+        <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.Roll.Type")}:</label>
+        <select class="check-select" id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
+            <option value="flat">{game.i18n.localize("PF2E.FlatCheck")}</option>
             {#each Object.entries(props.skills) as [key, data]}
                 <optgroup label={skillKeyToLabel[key]}>
                     {#each data as d}
@@ -348,6 +349,10 @@
                 </optgroup>
             {/each}
         </select>
+    </div>
+    <div class="form-group" hidden={!["fortitude", "reflex", "will"].includes(roll.slug)}>
+        <label for="check-basic-{roll.id}">{game.i18n.localize("Basic")}:</label>
+        <input type="checkbox" id="check-basic-{roll.id}" bind:checked={roll.basic} />
     </div>
     <div class="form-group">
         <label for="check-traits-{roll.id}">{game.i18n.localize("PF2E.TraitsLabel")}:</label>
@@ -409,7 +414,7 @@
     .container {
         display: grid;
         grid-template-columns: 1fr 0.95fr;
-        height: 300px;
+        height: 335px;
     }
 
     .submit-buttons {
@@ -427,6 +432,10 @@
         .add-group {
             flex: 1;
             max-width: 2em;
+        }
+
+        .check-select {
+            margin-bottom: 5px;
         }
     }
 
