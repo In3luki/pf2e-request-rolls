@@ -1,3 +1,9 @@
+## 0.6.1
+
+### New Features
+
+-   Add `basic` option for saves and a `Flat Check` option in the check types dropdown ([#23](https://github.com/In3luki/pf2e-request-rolls/pull/23))
+
 ## 0.6.0
 
 ### New Features
