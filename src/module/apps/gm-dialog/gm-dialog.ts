@@ -22,7 +22,7 @@ class GMDialog extends SvelteApplicationMixin<
         id: "pf2e-request-rolls",
         position: {
             width: 700,
-            height: 420,
+            height: 455,
         },
         window: {
             icon: "fa-solid fa-dice",

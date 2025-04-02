@@ -96,6 +96,7 @@ function prepareSkillData(): void {
         return { label, value };
     });
     allSkills.set("perception", game.i18n.localize("PF2E.PerceptionLabel"));
+    allSkills.set("flat", game.i18n.localize("PF2E.FlatCheck"));
 }
 
 function hasNoContent(groups: RequestGroup[]): boolean {
@@ -117,6 +118,7 @@ function rollToInline(roll: RequestRoll, requestId?: string): string {
         case "check": {
             const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
             if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
+            if (roll.basic) parts.push("|basic");
             if (roll.traits.length) parts.push(`|traits:${roll.traits}`);
             const options: string[] = [`request-rolls-roll-id:${roll.id}`];
             if (requestId) options.push(`request-rolls-id:${requestId}`);
@@ -209,6 +211,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
             } else if (roll.type === "check") {
                 const mRoll: MinifiedCheckRoll = {
                     i: roll.id,
+                    b: roll.basic,
                     d: roll.dc,
                     sl: roll.slug,
                     t: "c",
@@ -263,6 +266,7 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
             } else if (roll.t === "c") {
                 const r: CheckRoll = {
                     id: roll.i,
+                    basic: roll.b,
                     dc: roll.d,
                     label: roll.l ?? "",
                     traits: roll.tr ?? [],

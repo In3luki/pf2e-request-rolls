@@ -16,6 +16,7 @@ interface ActionRoll extends BaseRoll {
 
 interface CheckRoll extends BaseRoll {
     adjustment?: number;
+    basic?: boolean;
     traits: string[];
     type: "check";
 }
@@ -51,6 +52,8 @@ interface MinifiedActionRoll extends MinifiedBaseRoll {
 interface MinifiedCheckRoll extends MinifiedBaseRoll {
     /** adjustment */
     a?: number;
+    /** basic */
+    b?: boolean;
     /** traits */
     tr?: string[];
     /** type */
