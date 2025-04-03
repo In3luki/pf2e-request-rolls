@@ -1,3 +1,10 @@
+## 0.6.2
+
+### Enhancements
+
+-   Clean up some sytlings in dark mode ([#24](https://github.com/In3luki/pf2e-request-rolls/pull/24))
+-   Use better labels for the type/statistic select elements
+
 ## 0.6.1
 
 ### New Features

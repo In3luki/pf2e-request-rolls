@@ -6,7 +6,7 @@
     import type { ActionRoll, CheckRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
-    import { compressToBase64, rollToInline } from "../helpers.ts";
+    import { compressToBase64, getInlineLink } from "../helpers.ts";
 
     const props: GMDialogContext = $props();
     const requests: RequestGroup[] = $state(props.initial);
@@ -240,7 +240,7 @@
                 </div>
                 <div class="rolls">
                     {#each request.rolls as roll}
-                        {#await TextEditor.enrichHTML(rollToInline(roll))}
+                        {#await getInlineLink({ roll })}
                             <div>Loading...</div>
                         {:then rollHTML}
                             <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -311,7 +311,7 @@
         <input id="action-dc-{roll.id}" type="number" placeholder="0" bind:value={roll.dc} onfocus={selectText} />
     </div>
     <div class="form-group">
-        <label for="action-statistic-{roll.id}">{game.i18n.localize("PF2E.SkillLabel")}:</label>
+        <label for="action-statistic-{roll.id}">{localize("GMDialog.StatisticLabel")}:</label>
         <select id="action-statistic-{roll.id}" name="skills" bind:value={roll.statistic}>
             <option value=""></option>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>

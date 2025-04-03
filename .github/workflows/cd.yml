@@ -45,3 +45,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           artifacts: "./dist/module.json,./dist/pf2e-request-rolls.zip"
           tag: ${{ env.moduleVersion }}
+
+      - name: Publish Module to FoundryVTT Website
+        id: publish-to-foundry-website
+        uses: cs96and/FoundryVTT-release-package@v1
+        with:
+          package-token: ${{ secrets.FOUNDRY_PACKAGE_RELEASE_TOKEN }}
+          manifest-url: https://github.com/${{ github.repository }}/releases/download/${{ env.moduleVersion }}/module.json
+          notes-url: https://github.com/${{ github.repository }}/releases/tag/${{ env.moduleVersion }}
