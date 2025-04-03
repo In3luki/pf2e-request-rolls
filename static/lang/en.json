@@ -27,6 +27,7 @@
             "NoPlayersSelectedWarning": "No players were selected!",
             "RequestSuccessful": "Successfully requested rolls",
             "SelectPlayersLabel": "Select Players",
+            "StatisticLabel": "Statistic",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
         },

@@ -74,11 +74,13 @@
             display: flex;
             flex-direction: column;
             background-color: var(--pf2e-rr-results-bg-color);
-            border: 1px solid var(--pf2e-rr-results-bg-color);
+            border: 1px solid var(--pf2e-rr-results-border-color);
+            border-radius: 4px;
             padding: 5px;
 
             .group {
                 margin-bottom: 0.2em;
+                color: var(--color-text-dark-primary);
             }
 
             .roll {
@@ -97,6 +99,7 @@
 
                 i {
                     margin-left: 5px;
+                    color: var(--color-text-dark-primary);
                 }
 
                 &.degree-of-success {

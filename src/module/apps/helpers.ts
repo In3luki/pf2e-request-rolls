@@ -141,7 +141,7 @@ function getLabel(roll: RequestRoll): string | undefined {
                 .replaceAll("$a", actions.get(roll.slug) ?? "$a")
                 .replaceAll("$s", allSkills.get(roll.statistic ?? "") ?? "$s");
         case "check":
-            return roll.label.replaceAll("$s", allSkills.get(roll.slug ?? "") ?? "$s");
+            return roll.label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
         default:
             return "";
     }
