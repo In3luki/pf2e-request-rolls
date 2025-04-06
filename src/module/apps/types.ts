@@ -21,8 +21,14 @@ interface CheckRoll extends BaseRoll {
     type: "check";
 }
 
+interface CounteractRoll extends BaseRoll {
+    sourceRank: number;
+    targetRank: number;
+    type: "counteract";
+}
+
 interface RequestGroup {
-    rolls: (ActionRoll | CheckRoll)[];
+    rolls: (ActionRoll | CheckRoll | CounteractRoll)[];
     id: string;
     title: string;
 }
@@ -60,9 +66,18 @@ interface MinifiedCheckRoll extends MinifiedBaseRoll {
     t: "c";
 }
 
+interface MinifiedCounteractRoll extends MinifiedBaseRoll {
+    /** source rank */
+    s?: number;
+    /** target rank */
+    tr?: number;
+    /** type */
+    t: "co";
+}
+
 interface MinifiedRequestGroup {
     /** rolls */
-    r: (MinifiedActionRoll | MinifiedCheckRoll)[];
+    r: (MinifiedActionRoll | MinifiedCheckRoll | MinifiedCounteractRoll)[];
     /** id */
     i: string;
     /** title */
@@ -89,15 +104,17 @@ interface SocketCSSUpdate {
 }
 
 type LabeledValue = { label: string; value: string };
-type RequestRoll = ActionRoll | CheckRoll;
+type RequestRoll = ActionRoll | CheckRoll | CounteractRoll;
 type SocketRequest = SocketCSSUpdate | SocketRollRequest;
 
 export type {
     ActionRoll,
     CheckRoll,
+    CounteractRoll,
     LabeledValue,
     MinifiedActionRoll,
     MinifiedCheckRoll,
+    MinifiedCounteractRoll,
     MinifiedRequestGroup,
     RequestGroup,
     RequestHistory,

@@ -22,7 +22,7 @@ class GMDialog extends SvelteApplicationMixin<
         id: "pf2e-request-rolls",
         position: {
             width: 700,
-            height: 455,
+            height: "auto",
         },
         window: {
             icon: "fa-solid fa-dice",
@@ -124,6 +124,16 @@ class GMDialog extends SvelteApplicationMixin<
                     traits: [],
                     slug: "perception",
                     type: "check",
+                };
+            case "counteract":
+                return {
+                    dc: 10,
+                    id: fu.randomID(),
+                    label: game.i18n.localize("PF2ERequestRolls.GMDialog.Counteract.Label"),
+                    slug: "arcana",
+                    sourceRank: 0,
+                    targetRank: 0,
+                    type: "counteract",
                 };
             default:
                 throw Error(`Unknown type ${type}`);

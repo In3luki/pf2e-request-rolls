@@ -5,9 +5,10 @@
             "AddGroupButtonTooltip": "Add Group",
             "AdjustmentLabel": "Adjustment",
             "Buttons": {
-                "ActionLabel": "Add Action",
-                "CheckLabel": "Add Check",
+                "ActionLabel": "+ Action",
+                "CheckLabel": "+ Check",
                 "ClearAllLabel": "Clear All",
+                "CounteractLabel": "+ Counteract Check",
                 "RequestRollsLabel": "Request Rolls",
                 "SendToChatLabel": "Send to Chat",
                 "ShowHistoryLabel": "Show History"
@@ -17,6 +18,11 @@
             "ConfirmDeleteRoll": "Really delete Roll?",
             "CopyAsInlineLink": "Copy as inline link",
             "CopyAsInlineLinkConfirmation": "Inline link copied to clipboard",
+            "Counteract": {
+                "DCHint": "If you're counteracting an affliction, the DC is in the affliction's stat block. If it's a spell, use the caster's DC. The GM can also calculate a DC based on the target effect's level.",
+                "Label": "Counteract ($s)",
+                "RankHint": "If an effect is a spell, its rank is the counteract rank. Otherwise, halve its level and round up to determine its counteract rank (minimum counteract rank 0). If an effect's level is unclear and it came from a creature, halve and round up the creature's level."
+            },
             "GroupHeader": "Group Header",
             "GroupHeaderPlaceholder": "Enter optional group header",
             "HistoryLabel": "History",
@@ -26,12 +32,15 @@
             "NoContentWarning": "Request has no content!",
             "NoPlayersSelectedWarning": "No players were selected!",
             "RequestSuccessful": "Successfully requested rolls",
+            "SourceRankLabel": "Source Rank",
             "SelectPlayersLabel": "Select Players",
             "StatisticLabel": "Statistic",
+            "TargetRankLabel": "Target Rank",
             "Title": "Request Rolls",
             "VariantLabel": "Variant"
         },
         "ResultsDialog": {
+            "CounteractLabel": "Counteract",
             "ResultLabel": "Result",
             "Title": "Roll Results"
         },
