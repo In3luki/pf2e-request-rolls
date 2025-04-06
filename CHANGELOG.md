@@ -1,3 +1,9 @@
+## 0.7.0
+
+### New Features
+
+-   Add counteract checks ([#25](https://github.com/In3luki/pf2e-request-rolls/pull/25))
+
 ## 0.6.2
 
 ### Enhancements
