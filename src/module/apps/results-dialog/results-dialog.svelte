@@ -2,8 +2,20 @@
     import * as R from "remeda";
     import type { ResultsDialogContext } from "./results-dialog.ts";
     import { getInlineLink } from "../helpers.ts";
+    import type { CounteractRoll } from "../types.ts";
+    import type { DegreeOfSuccessString } from "foundry-pf2e";
 
     const props: ResultsDialogContext = $props();
+
+    function getCounteractResult(roll: CounteractRoll, outcome: DegreeOfSuccessString): string {
+        const counteractRank = {
+            criticalSuccess: roll.sourceRank + 4, // Counteract the target if its counteract rank is no more than 3 higher than your effect's counteract rank.
+            success: roll.sourceRank + 2, // Counteract the target if its counteract rank is no more than 1 higher than your effect's counteract rank.
+            failure: Math.max(roll.sourceRank - 1, 0), // Counteract the target if its counteract rank is lower than your effect's counteract rank.
+            criticalFailure: 0, // You fail to counteract the target.
+        }[outcome];
+        return counteractRank > roll.targetRank ? "success" : "failure";
+    }
 
     function onClickRoll(event: MouseEvent): void {
         event.stopPropagation();
@@ -46,6 +58,17 @@
                                 <i class="fa-solid fa-dice reroll-indicator"></i>
                             {/if}
                         </div>
+                        {#if group.roll.type === "counteract" && group.outcome}
+                            {@const outcome = getCounteractResult(group.roll, group.outcome)}
+                            <div class="result degree-of-success">
+                                <span class="label">
+                                    {game.i18n.localize("PF2ERequestRolls.ResultsDialog.CounteractLabel")}:
+                                </span>
+                                <span class="outcome {outcome}">
+                                    {game.i18n.localize(`PF2E.Check.Result.Degree.Check.${outcome}`)}
+                                </span>
+                            </div>
+                        {/if}
                     </div>
                 {/each}
             {:else}

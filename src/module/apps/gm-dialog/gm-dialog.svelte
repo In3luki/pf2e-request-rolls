@@ -3,7 +3,7 @@
     import { fade } from "svelte/transition";
     import dayjs from "dayjs";
     import type { GMDialogContext } from "./gm-dialog.ts";
-    import type { ActionRoll, CheckRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
+    import type { ActionRoll, CheckRoll, CounteractRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
     import { compressToBase64, getInlineLink } from "../helpers.ts";
@@ -216,12 +216,17 @@
             <button type="button" onclick={() => createNewRoll("check")}>
                 {localize("GMDialog.Buttons.CheckLabel")}
             </button>
+            <button type="button" onclick={() => createNewRoll("counteract")}>
+                {localize("GMDialog.Buttons.CounteractLabel")}
+            </button>
         </div>
         {#if editing}
             {#if editing.type === "action"}
                 {@render action(editing)}
             {:else if editing.type === "check"}
                 {@render check(editing)}
+            {:else if editing.type === "counteract"}
+                {@render counteract(editing)}
             {/if}
         {/if}
     </div>
@@ -308,7 +313,14 @@
     </div>
     <div class="form-group">
         <label for="action-dc-{roll.id}">{game.i18n.localize("PF2E.Check.DC.Unspecific")}</label>
-        <input id="action-dc-{roll.id}" type="number" placeholder="0" bind:value={roll.dc} onfocus={selectText} />
+        <input
+            id="action-dc-{roll.id}"
+            type="number"
+            min="0"
+            placeholder="0"
+            bind:value={roll.dc}
+            onfocus={selectText}
+        />
     </div>
     <div class="form-group">
         <label for="action-statistic-{roll.id}">{localize("GMDialog.StatisticLabel")}:</label>
@@ -369,7 +381,7 @@
     </div>
     <div class="form-group">
         <label for="check-dc-{roll.id}">{game.i18n.localize("PF2E.Check.DC.Unspecific")}:</label>
-        <input id="check-dc-{roll.id}" type="number" bind:value={roll.dc} onfocus={selectText} />
+        <input id="check-dc-{roll.id}" type="number" min="0" bind:value={roll.dc} onfocus={selectText} />
     </div>
     <div class="form-group">
         <label for="check-label-{roll.id}">{localize("GMDialog.Label")}:</label>
@@ -388,6 +400,58 @@
                 <option value={adjustment.value}>{adjustment.label}</option>
             {/each}
         </select>
+    </div>
+{/snippet}
+
+{#snippet counteract(roll: CounteractRoll)}
+    <div class="form-group">
+        <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.Roll.Type")}:</label>
+        <select class="check-select" id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
+            {#each props.skills.skills as skill}
+                <option value={skill.value}>{skill.label}</option>
+            {/each}
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="check-source-rank-{roll.id}" data-tooltip="PF2ERequestRolls.GMDialog.Counteract.RankHint">
+            {localize("GMDialog.SourceRankLabel")}:
+        </label>
+        <input
+            id="check-source-rank-{roll.id}"
+            type="number"
+            min="0"
+            max="10"
+            bind:value={roll.sourceRank}
+            onfocus={selectText}
+        />
+    </div>
+    <div class="form-group">
+        <label for="check-target-rank-{roll.id}" data-tooltip="PF2ERequestRolls.GMDialog.Counteract.RankHint">
+            {localize("GMDialog.TargetRankLabel")}:
+        </label>
+        <input
+            id="check-target-rank-{roll.id}"
+            type="number"
+            min="0"
+            max="13"
+            bind:value={roll.targetRank}
+            onfocus={selectText}
+        />
+    </div>
+    <div class="form-group">
+        <label for="check-dc-{roll.id}" data-tooltip="PF2ERequestRolls.GMDialog.Counteract.DCHint">
+            {game.i18n.localize("PF2E.Check.DC.Unspecific")}:
+        </label>
+        <input id="check-dc-{roll.id}" type="number" min="0" bind:value={roll.dc} onfocus={selectText} />
+    </div>
+    <div class="form-group">
+        <label for="check-label-{roll.id}">{localize("GMDialog.Label")}:</label>
+        <input
+            id="check-label-{roll.id}"
+            type="text"
+            placeholder={localize("GMDialog.LabelPlaceholder")}
+            bind:value={roll.label}
+        />
     </div>
 {/snippet}
 
@@ -414,12 +478,14 @@
     .container {
         display: grid;
         grid-template-columns: 1fr 0.95fr;
-        height: 335px;
+        min-height: 317px;
+        height: auto;
     }
 
     .submit-buttons {
         display: flex;
         margin-top: 1rem;
+        margin-bottom: 1rem;
     }
 
     .edit {
@@ -427,6 +493,10 @@
             display: flex;
             margin-top: 0.5em;
             margin-bottom: 0.5em;
+
+            button {
+                line-height: 14px;
+            }
         }
 
         .add-group {

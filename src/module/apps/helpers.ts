@@ -6,8 +6,10 @@ import { ActionRenderData, GMDialogContext } from "./gm-dialog/gm-dialog.ts";
 import type {
     ActionRoll,
     CheckRoll,
+    CounteractRoll,
     MinifiedActionRoll,
     MinifiedCheckRoll,
+    MinifiedCounteractRoll,
     MinifiedRequestGroup,
     RequestGroup,
     RequestRoll,
@@ -127,6 +129,15 @@ function rollToInline(roll: RequestRoll, requestId?: string): string {
 
             return parts.join("");
         }
+        case "counteract": {
+            const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
+            const options: string[] = [`request-rolls-roll-id:${roll.id}`, "check:statistic:counteract"];
+            if (requestId) options.push(`request-rolls-id:${requestId}`);
+            parts.push(`|options:${options}]`);
+            if (label) parts.push(`{${label}}`);
+
+            return parts.join("");
+        }
         default:
             return "";
     }
@@ -141,6 +152,7 @@ function getLabel(roll: RequestRoll): string | undefined {
                 .replaceAll("$a", actions.get(roll.slug) ?? "$a")
                 .replaceAll("$s", allSkills.get(roll.statistic ?? "") ?? "$s");
         case "check":
+        case "counteract":
             return roll.label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
         default:
             return "";
@@ -220,6 +232,17 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
                     ...(roll.traits ? { tr: roll.traits } : {}),
                 };
                 mGroup.r.push(mRoll);
+            } else if (roll.type === "counteract") {
+                const mRoll: MinifiedCounteractRoll = {
+                    i: roll.id,
+                    d: roll.dc,
+                    s: roll.sourceRank,
+                    sl: roll.slug,
+                    tr: roll.targetRank,
+                    t: "co",
+                    ...(roll.label ? { l: roll.label } : {}),
+                };
+                mGroup.r.push(mRoll);
             }
         }
         minified.push(mGroup);
@@ -273,6 +296,17 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
                     type: "check",
                     slug: roll.sl,
                     adjustment: roll.a,
+                };
+                g.rolls.push(r);
+            } else if (roll.t === "co") {
+                const r: CounteractRoll = {
+                    id: roll.i,
+                    dc: roll.d,
+                    label: roll.l ?? "",
+                    sourceRank: roll.s ?? 0,
+                    targetRank: roll.tr ?? 0,
+                    type: "counteract",
+                    slug: roll.sl,
                 };
                 g.rolls.push(r);
             }
