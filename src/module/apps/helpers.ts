@@ -105,35 +105,35 @@ function hasNoContent(groups: RequestGroup[]): boolean {
     return !groups.some((g) => g.rolls.length > 0);
 }
 
-function rollToInline(roll: RequestRoll, requestId?: string): string {
+function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkOptions): string {
     const label = getLabel(roll);
     switch (roll.type) {
         case "action": {
             const parts: string[] = ["[[/act", roll.slug, `dc=${roll.dc}`];
             if (roll.variant) parts.push(`variant=${roll.variant}`);
             if (roll.statistic) parts.push(`statistic=${roll.statistic}`);
-            const options: string[] = [`request-rolls-roll-id:${roll.id}`];
-            if (requestId) options.push(`request-rolls-id:${requestId}`);
+            const options = getOptions({ roll, requestId, requestOptions });
 
-            return `${parts.join(" ")} options=${options}]]${label ? `{${label}}` : ""}`;
+            return `${parts.join(" ")} ${options.length ? `options=${options}` : ""}]]${label ? `{${label}}` : ""}`;
         }
         case "check": {
             const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
             if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
             if (roll.basic) parts.push("|basic");
             if (roll.traits.length) parts.push(`|traits:${roll.traits}`);
-            const options: string[] = [`request-rolls-roll-id:${roll.id}`];
-            if (requestId) options.push(`request-rolls-id:${requestId}`);
-            parts.push(`|options:${options}]`);
+            const options = getOptions({ roll, requestId, requestOptions });
+            if (options.length) parts.push(`|options:${options}`);
+            parts.push("]");
             if (label) parts.push(`{${label}}`);
 
             return parts.join("");
         }
         case "counteract": {
             const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
-            const options: string[] = [`request-rolls-roll-id:${roll.id}`, "check:statistic:counteract"];
-            if (requestId) options.push(`request-rolls-id:${requestId}`);
+            const options = getOptions({ roll, requestId, requestOptions });
+            options.push("check:statistic:counteract");
             parts.push(`|options:${options}]`);
+
             if (label) parts.push(`{${label}}`);
 
             return parts.join("");
@@ -141,6 +141,14 @@ function rollToInline(roll: RequestRoll, requestId?: string): string {
         default:
             return "";
     }
+}
+
+function getOptions({ roll, requestId, requestOptions = true }: GetInlineLinkOptions): string[] {
+    if (!requestOptions) return [];
+    const options: string[] = [];
+    options.push(`request-rolls-roll-id:${roll.id}`);
+    if (requestId) options.push(`request-rolls-id:${requestId}`);
+    return options;
 }
 
 function getLabel(roll: RequestRoll): string | undefined {
@@ -168,7 +176,7 @@ async function getInlineLink({
     roll: RequestRoll;
     requestId?: string;
 }): Promise<string> {
-    const enriched = await TextEditor.enrichHTML(rollToInline(roll, requestId));
+    const enriched = await TextEditor.enrichHTML(rollToInline({ roll, requestId }));
     const el = document.createElement("div");
     el.innerHTML = enriched;
     htmlQuery(el, "i[data-pf2-repost]")?.remove();
@@ -340,6 +348,12 @@ async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
     };
     fileReader.readAsDataURL(blob);
     return promise;
+}
+
+interface GetInlineLinkOptions {
+    roll: RequestRoll;
+    requestOptions?: boolean;
+    requestId?: string;
 }
 
 export {

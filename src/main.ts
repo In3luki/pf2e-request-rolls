@@ -109,6 +109,7 @@ async function enricher(match: RegExpMatchArray): Promise<HTMLElement | null> {
     const anchor = document.createElement("a");
     anchor.classList.add("inline-check", "pf2e--request-rolls-inline-link");
     anchor.dataset.rrGroups = match.groups.data;
+    anchor.dataset.visibility = "gm";
     const icon = document.createElement("i");
     icon.classList.add("fa-solid", "fa-dice");
     anchor.appendChild(icon);

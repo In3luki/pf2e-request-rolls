@@ -6,7 +6,7 @@
     import type { ActionRoll, CheckRoll, CounteractRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
-    import { compressToBase64, getInlineLink } from "../helpers.ts";
+    import { compressToBase64, getInlineLink, rollToInline } from "../helpers.ts";
 
     const props: GMDialogContext = $props();
     const requests: RequestGroup[] = $state(props.initial);
@@ -86,7 +86,15 @@
             selectedRollId = copy.id;
             return;
         }
+
         switchActive(group, roll);
+    }
+
+    function onRClickRoll(event: MouseEvent, roll: RequestRoll): void {
+        if (event.shiftKey) {
+            game.clipboard.copyPlainText(rollToInline({ roll, requestOptions: false }));
+            ui.notifications.info("PF2ERequestRolls.GMDialog.CopyAsInlineLinkConfirmation", { localize: true });
+        }
     }
 
     async function onClickCopy(): Promise<void> {
@@ -254,6 +262,7 @@
                                 class="roll"
                                 class:active={editing === roll}
                                 onclick={(e) => onClickRoll(e, request, roll)}
+                                oncontextmenu={(e) => onRClickRoll(e, roll)}
                                 transition:fade
                             >
                                 {@html rollHTML}
@@ -394,7 +403,7 @@
     </div>
     <div class="form-group">
         <label for="check-adjustment-{roll.id}">{localize("GMDialog.AdjustmentLabel")}:</label>
-        <select id="check-adjustment-{roll.id}" bind:value={roll.adjustment}>
+        <select id="check-adjustment-{roll.id}" onchange={(e) => (roll.adjustment = Number(e.currentTarget.value))}>
             <option value="0"></option>
             {#each props.dcAdjustments as adjustment}
                 <option value={adjustment.value}>{adjustment.label}</option>

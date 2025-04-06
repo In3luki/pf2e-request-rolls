@@ -178,7 +178,7 @@ class GMDialog extends SvelteApplicationMixin<
             groupEl.appendChild(div);
             container.appendChild(groupEl);
             for (const roll of group.rolls) {
-                div.innerHTML += rollToInline(roll);
+                div.innerHTML += rollToInline({ roll });
             }
         }
 
