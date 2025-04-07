@@ -1,3 +1,14 @@
+## 0.7.1
+
+### Enhancements
+
+-   Add Shift + Left Click to copy indiviual raw inline rolls to the clipboard ([#27](https://github.com/In3luki/pf2e-request-rolls/pull/27))
+-   Set Request Roll inline links that open the GM dialog to GM-only visibility ([#27](https://github.com/In3luki/pf2e-request-rolls/pull/27))
+
+### Bugfixes
+
+-    Fix counteract check outcome for equal counteract ranks ([#28](https://github.com/In3luki/pf2e-request-rolls/pull/28))
+
 ## 0.7.0
 
 ### New Features
