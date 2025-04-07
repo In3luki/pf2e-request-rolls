@@ -8,13 +8,13 @@
     const props: ResultsDialogContext = $props();
 
     function getCounteractResult(roll: CounteractRoll, outcome: DegreeOfSuccessString): string {
-        const counteractRank = {
-            criticalSuccess: roll.sourceRank + 4, // Counteract the target if its counteract rank is no more than 3 higher than your effect's counteract rank.
-            success: roll.sourceRank + 2, // Counteract the target if its counteract rank is no more than 1 higher than your effect's counteract rank.
-            failure: Math.max(roll.sourceRank - 1, 0), // Counteract the target if its counteract rank is lower than your effect's counteract rank.
-            criticalFailure: 0, // You fail to counteract the target.
+        const finalCounteractRank = {
+            criticalSuccess: roll.sourceRank + 3, // Counteract the target if its counteract rank is no more than 3 higher than your effect's counteract rank.
+            success: roll.sourceRank + 1, // Counteract the target if its counteract rank is no more than 1 higher than your effect's counteract rank.
+            failure: roll.sourceRank - 1, // Counteract the target if its counteract rank is lower than your effect's counteract rank.
+            criticalFailure: -1, // You fail to counteract the target.
         }[outcome];
-        return counteractRank > roll.targetRank ? "success" : "failure";
+        return roll.targetRank <= finalCounteractRank ? "success" : "failure";
     }
 
     function onClickRoll(event: MouseEvent): void {
