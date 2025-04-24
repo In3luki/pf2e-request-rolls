@@ -1,3 +1,11 @@
+A lightweight module that enables Game Masters to generate multiple inline check rolls and actions with optional group headers. Rolls can be sent either to the in-game chat or directly to selected connected players.
+
+When rolls are sent to players, a result window will track and display the outcomes of the requested rolls in real time.
+
+Additionally, generated requests—including those with multiple groups—can be saved as inline links, allowing GMs to quickly reopen the request dialog with prefilled data.
+
+The request dialog can be opened via the console or a macro using `requestRolls.GMDialog.open()`.
+
 ## Licenses
 
 **Project Licensing:**
