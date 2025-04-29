@@ -42,9 +42,12 @@ class GMDialog extends SvelteApplicationMixin<
             openSettings: async (): Promise<void> => {
                 // @ts-expect-error Missing type
                 ui.activeWindow?.toggleControls();
-                // @ts-expect-error Ignore private
-                game.settings.sheet._tabs[0].active = "pf2e-request-rolls";
-                game.settings.sheet.render(true);
+                const sheet = game.settings.sheet as unknown as {
+                    tabGroups: { categories: string };
+                    render: (options?: { force: boolean }) => Promise<void>;
+                };
+                sheet.tabGroups.categories = "pf2e-request-rolls";
+                sheet.render({ force: true });
             },
         },
     };
