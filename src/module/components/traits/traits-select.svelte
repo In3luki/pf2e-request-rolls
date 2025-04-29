@@ -117,6 +117,7 @@
                 border-radius: unset;
                 padding: 0 var(--space-1);
                 height: unset;
+                min-height: unset;
 
                 &:hover {
                     background-color: #c77777;

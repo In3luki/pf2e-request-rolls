@@ -472,6 +472,7 @@
         margin-top: 0.25em;
 
         button {
+            min-height: unset;
             height: 1.5em;
         }
 
@@ -482,6 +483,11 @@
                 margin-right: 0.4em;
             }
         }
+    }
+
+    button {
+        width: 100%;
+        margin: 0 1px;
     }
 
     .container {
