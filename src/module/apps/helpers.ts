@@ -176,7 +176,9 @@ async function getInlineLink({
     roll: RequestRoll;
     requestId?: string;
 }): Promise<string> {
-    const enriched = await TextEditor.enrichHTML(rollToInline({ roll, requestId }));
+    const enriched = await (
+        foundry.applications as unknown as { ux: { TextEditor: typeof TextEditor } }
+    ).ux.TextEditor.enrichHTML(rollToInline({ roll, requestId }));
     const el = document.createElement("div");
     el.innerHTML = enriched;
     htmlQuery(el, "i[data-pf2-repost]")?.remove();
