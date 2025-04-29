@@ -1,3 +1,7 @@
+## 1.0.0
+
+-   Foundry v13 compatibility ([#31](https://github.com/In3luki/pf2e-request-rolls/pull/31))
+
 ## 0.7.1
 
 ### Enhancements
