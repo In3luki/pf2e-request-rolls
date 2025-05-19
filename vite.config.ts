@@ -16,7 +16,18 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
     const buildMode = mode === "production" ? "production" : "development";
     const outDir = "dist";
 
-    const plugins = [checker({ typescript: true }), tsconfigPaths({ loose: true }), sveltePlugin()];
+    // Add modules layer to svelte CSS in HMR
+    const hmrPreprocess = {
+        name: "svelte-hmr-layer",
+        style: ({ content }: { content: string }) => ({ code: `@layer modules { ${content} }` }),
+    };
+    const plugins = [
+        checker({ typescript: true }),
+        tsconfigPaths({ loose: true }),
+        sveltePlugin({
+            preprocess: command === "serve" ? hmrPreprocess : undefined,
+        }),
+    ];
     // Handle minification after build to allow for tree-shaking and whitespace minification
     // "Note the build.minify option does not minify whitespaces when using the 'es' format in lib mode, as it removes
     // pure annotations and breaks tree-shaking."
@@ -78,6 +89,21 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
                 },
             },
         );
+
+        // Add modules CSS layer for HMR
+        const mainCss = path.resolve(__dirname, "src/main.ts").split(path.sep).join("/");
+        plugins.push({
+            name: "hmr-layers",
+            apply: "serve",
+            transform: (code, id) => {
+                if (id === mainCss) {
+                    return code.replace("styles/global.scss", "styles/vite-hmr.scss");
+                } else if (/node_modules\/.+\.css$/.test(id)) {
+                    return `@layer modules { ${code} }`;
+                }
+                return;
+            },
+        });
     }
 
     // Create dummy files for vite dev server
