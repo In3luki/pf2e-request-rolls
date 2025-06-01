@@ -117,9 +117,11 @@ function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkO
             return `${parts.join(" ")} ${options.length ? `options=${options}` : ""}]]${label ? `{${label}}` : ""}`;
         }
         case "check": {
-            const parts: string[] = ["@Check[", roll.slug, `|dc:${roll.dc}`];
+            const parts: string[] = ["@Check[", roll.slug];
+            if (roll.slug !== "spell") parts.push(`|dc:${roll.dc}`);
             if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
             if (roll.basic) parts.push("|basic");
+            if (roll.defense) parts.push(`|defense:${roll.defense}`);
             if (roll.traits.length) parts.push(`|traits:${roll.traits}`);
             const options = getOptions({ roll, requestId, requestOptions });
             if (options.length) parts.push(`|options:${options}`);
@@ -235,6 +237,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
                     i: roll.id,
                     b: roll.basic,
                     d: roll.dc,
+                    df: roll.defense,
                     sl: roll.slug,
                     t: "c",
                     ...(roll.label ? { l: roll.label } : {}),
@@ -269,7 +272,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
 }
 
 async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
-    const byteArray = await base64ToUnit8Array(string);
+    const byteArray = await base64ToArrayBuffer(string);
     const cs = new DecompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
@@ -301,6 +304,7 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
                     id: roll.i,
                     basic: roll.b,
                     dc: roll.d,
+                    defense: roll.df,
                     label: roll.l ?? "",
                     traits: roll.tr ?? [],
                     type: "check",
@@ -327,11 +331,11 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     return groups;
 }
 
-async function base64ToUnit8Array(base64: string): Promise<Uint8Array> {
+async function base64ToArrayBuffer(base64: string): Promise<ArrayBuffer> {
     const dataUrl = "data:application/octet-binary;base64," + base64;
     const res = await fetch(dataUrl);
     const buffer = await res.arrayBuffer();
-    return new Uint8Array(buffer);
+    return buffer;
 }
 
 async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {

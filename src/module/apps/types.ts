@@ -1,3 +1,4 @@
+import { SaveType } from "@pf2e/types/index.js";
 import type { CssSettings } from "src/settings/data.svelte.ts";
 
 interface BaseRoll {
@@ -17,6 +18,7 @@ interface ActionRoll extends BaseRoll {
 interface CheckRoll extends BaseRoll {
     adjustment?: number;
     basic?: boolean;
+    defense?: "ac" | SaveType;
     traits: string[];
     type: "check";
 }
@@ -60,6 +62,8 @@ interface MinifiedCheckRoll extends MinifiedBaseRoll {
     a?: number;
     /** basic */
     b?: boolean;
+    /** defense */
+    df?: "ac" | SaveType;
     /** traits */
     tr?: string[];
     /** type */
