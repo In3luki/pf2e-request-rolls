@@ -1,3 +1,13 @@
+## 1.0.1
+
+### Bugfixes
+
+-   Fix secret inline link background color in dark mode ([#35](https://github.com/In3luki/pf2e-request-rolls/pull/35))
+
+### Enhancements
+
+-   Add `Spell Attack` check roll ([#35](https://github.com/In3luki/pf2e-request-rolls/pull/35))
+
 ## 1.0.0
 
 -   Foundry v13 compatibility ([#31](https://github.com/In3luki/pf2e-request-rolls/pull/31))
