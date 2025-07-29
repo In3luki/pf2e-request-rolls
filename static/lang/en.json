@@ -4,6 +4,7 @@
         "GMDialog": {
             "AddGroupButtonTooltip": "Add Group",
             "AdjustmentLabel": "Adjustment",
+            "AgainstLabel": "Against",
             "Buttons": {
                 "ActionLabel": "+ Action",
                 "CheckLabel": "+ Check",

@@ -19,7 +19,7 @@ class RollDialog extends SvelteApplicationMixin<
         },
         window: {
             icon: "fa-solid fa-dice",
-            contentClasses: ["standard-form"],
+            contentClasses: ["pf2e--request-rolls", "standard-form"],
             positioned: true,
             title: "PF2ERequestRolls.RollDialog.Title",
         },

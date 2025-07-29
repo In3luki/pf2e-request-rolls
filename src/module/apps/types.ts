@@ -17,8 +17,8 @@ interface ActionRoll extends BaseRoll {
 
 interface CheckRoll extends BaseRoll {
     adjustment?: number;
+    against?: "ac" | SaveType;
     basic?: boolean;
-    defense?: "ac" | SaveType;
     traits: string[];
     type: "check";
 }
@@ -60,10 +60,10 @@ interface MinifiedActionRoll extends MinifiedBaseRoll {
 interface MinifiedCheckRoll extends MinifiedBaseRoll {
     /** adjustment */
     a?: number;
+    /** against */
+    ag?: "ac" | SaveType;
     /** basic */
     b?: boolean;
-    /** defense */
-    df?: "ac" | SaveType;
     /** traits */
     tr?: string[];
     /** type */

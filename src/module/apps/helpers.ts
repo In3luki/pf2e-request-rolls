@@ -118,10 +118,10 @@ function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkO
         }
         case "check": {
             const parts: string[] = ["@Check[", roll.slug];
-            if (roll.slug !== "spell") parts.push(`|dc:${roll.dc}`);
+            if (roll.slug !== "spell-attack") parts.push(`|against:${roll.dc}`);
             if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
             if (roll.basic) parts.push("|basic");
-            if (roll.defense) parts.push(`|defense:${roll.defense}`);
+            if (roll.against) parts.push(`|against:${roll.against}`);
             if (roll.traits.length) parts.push(`|traits:${roll.traits}`);
             const options = getOptions({ roll, requestId, requestOptions });
             if (options.length) parts.push(`|options:${options}`);
@@ -235,13 +235,13 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
             } else if (roll.type === "check") {
                 const mRoll: MinifiedCheckRoll = {
                     i: roll.id,
-                    b: roll.basic,
                     d: roll.dc,
-                    df: roll.defense,
                     sl: roll.slug,
                     t: "c",
                     ...(roll.label ? { l: roll.label } : {}),
                     ...(roll.adjustment ? { a: roll.adjustment } : {}),
+                    ...(roll.against ? { ag: roll.against } : {}),
+                    ...(roll.basic ? { b: roll.basic } : {}),
                     ...(roll.traits ? { tr: roll.traits } : {}),
                 };
                 mGroup.r.push(mRoll);
@@ -302,14 +302,14 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
             } else if (roll.t === "c") {
                 const r: CheckRoll = {
                     id: roll.i,
+                    adjustment: roll.a,
+                    against: roll.ag,
                     basic: roll.b,
                     dc: roll.d,
-                    defense: roll.df,
                     label: roll.l ?? "",
                     traits: roll.tr ?? [],
                     type: "check",
                     slug: roll.sl,
-                    adjustment: roll.a,
                 };
                 g.rolls.push(r);
             } else if (roll.t === "co") {
