@@ -362,7 +362,7 @@
         <select class="check-select" id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
             <option value="flat">{game.i18n.localize("PF2E.FlatCheck")}</option>
-            <option value="spell">{game.i18n.localize("PF2E.SpellAttackLabel")}</option>
+            <option value="spell-attack">{game.i18n.localize("PF2E.SpellAttackLabel")}</option>
             {#each Object.entries(props.skills) as [key, data]}
                 <optgroup label={skillKeyToLabel[key]}>
                     {#each data as d}
@@ -391,18 +391,20 @@
             onChange={(selections) => selectTraits(selections, roll)}
         />
     </div>
-    {#if roll.slug === "spell"}
+    {#if roll.slug === "spell-attack"}
         <div class="form-group">
-            <label for="check-select-defense-{roll.id}">{game.i18n.localize("PF2E.Item.Spell.Defense.Label")}:</label>
+            <label for="check-select-against-{roll.id}">{localize("GMDialog.AgainstLabel")}:</label>
             <select
-                class="check-select-defense"
-                id="check-select-defense-{roll.id}"
+                class="check-select-against"
+                id="check-select-against-{roll.id}"
                 name="defense"
-                bind:value={roll.defense}
+                bind:value={roll.against}
             >
                 <option value="ac">{game.i18n.localize("PF2E.ArmorClassLabel")}</option>
                 {#each props.skills.saves as save}
-                    <option value={save.value}>{save.label}</option>
+                    <option value={save.value}>
+                        {game.i18n.format("PF2E.InlineCheck.DCWithName", { name: save.label })}
+                    </option>
                 {/each}
             </select>
         </div>
