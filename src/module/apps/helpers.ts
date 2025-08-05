@@ -118,7 +118,7 @@ function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkO
         }
         case "check": {
             const parts: string[] = ["@Check[", roll.slug];
-            if (roll.slug !== "spell-attack") parts.push(`|against:${roll.dc}`);
+            if (roll.slug !== "spell-attack") parts.push(`|dc:${roll.dc}`);
             if (roll.adjustment) parts.push(`|adjustment:${roll.adjustment}`);
             if (roll.basic) parts.push("|basic");
             if (roll.against) parts.push(`|against:${roll.against}`);
