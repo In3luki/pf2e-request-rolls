@@ -1,3 +1,9 @@
+## 1.0.2
+
+### Bugfixes
+
+-   Fix inline link DC not working ([#37](https://github.com/In3luki/pf2e-request-rolls/pull/37))
+
 ## 1.0.1
 
 ### Bugfixes
