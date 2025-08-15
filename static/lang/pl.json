@@ -1,0 +1,81 @@
+{
+    "PF2ERequestRolls": {
+        "ContextMenuLabel": "Otwórz PF2e Request Rolls",
+        "GMDialog": {
+            "AddGroupButtonTooltip": "Dodaj grupę",
+            "AdjustmentLabel": "Dostosowanie",
+            "AgainstLabel": "Przeciw",
+            "Buttons": {
+                "ActionLabel": "+ Akcja",
+                "CheckLabel": "+ Test",
+                "ClearAllLabel": "Wyczyść wszystko",
+                "CounteractLabel": "+ Test przeciwdziałania",
+                "RequestRollsLabel": "Prośba o rzuty",
+                "SendToChatLabel": "Wyślij na czat",
+                "ShowHistoryLabel": "Pokaż historię"
+            },
+            "ConfirmClearAll": "Na pewno ma być wszystko wyczyszczone?",
+            "ConfirmDeleteGroup": "Naprawdę chcesz usunąć grupę?",
+            "ConfirmDeleteRoll": "Naprawdę chcesz usunąć rzut?",
+            "CopyAsInlineLink": "Skopiuj jako link wewnętrzny",
+            "CopyAsInlineLinkConfirmation": "Link wewnętrzny skopiowano do schowka",
+            "Counteract": {
+                "DCHint": "Jeśli przeciwdziałasz chorobie, ST znajduje się w bloku statystyk choroby. Jeśli jest to zaklęcie, użyj ST rzucającego. MG może również obliczyć ST na podstawie poziomu efektu docelowego.",
+                "Label": "Przeciwdziałanie ($s)",
+                "RankHint": "Jeśli efekt jest zaklęciem, jego ranga jest rangą przeciwdziałania. W przeciwnym razie należy podzielić jego poziom przez dwa i zaokrąglić w górę, aby określić rangę przeciwdziałania (minimalna ranga przeciwdziałania wynosi 0). Jeśli poziom efektu jest niejasny i pochodzi on od stworzenia, należy podzielić poziom stworzenia przez dwa i zaokrąglić w górę."
+            },
+            "GroupHeader": "Nagłówek grupy",
+            "GroupHeaderPlaceholder": "Wprowadź opcjonalny nagłówek grupy",
+            "HistoryLabel": "Historia",
+            "Label": "Etykieta",
+            "LabelPlaceholder": "Wprowadź opcjonalną etykietę",
+            "NoActivePlayersWarning": "Nie znaleziono aktywnych graczy!",
+            "NoContentWarning": "Żądanie nie zawiera treści!",
+            "NoPlayersSelectedWarning": "Nie wybrano żadnych graczy!",
+            "RequestSuccessful": "Pomyślnie zażądano rzutów",
+            "SourceRankLabel": "Ranga źródła",
+            "SelectPlayersLabel": "Wybierz graczy",
+            "StatisticLabel": "Statystyka",
+            "TargetRankLabel": "Ranga celu",
+            "Title": "Prośba o rzuty",
+            "VariantLabel": "Wariant"
+        },
+        "ResultsDialog": {
+            "CounteractLabel": "Przeciwdziałanie",
+            "ResultLabel": "Wynik",
+            "Title": "Wyniki rzutu"
+        },
+        "RollDialog": {
+            "Title": "Poproszono o rzuty"
+        },
+        "SelectPlayersDialog": {
+            "SelectAllLabel": "Wybierz wszystko",
+            "Title": "Wybierz graczy"
+        },
+        "Settings": {
+            "CSS": {
+                "GroupContainerName": "Grupa kontenerów niestandardowy CSS",
+                "GroupContainerHint": "Nadpisanie CSS dla elementu kontenera grupy rzutu.",
+                "GroupHeaderName": "Nagłówek grupy Niestandardowy CSS",
+                "GroupHeaderHint": "Nadpisanie CSS dla elementu nagłówka grupy rzutu.",
+                "OuterContainerName": "Zewnętrzny kontener Niestandardowy CSS",
+                "OuterContainerHint": "Nadpisanie CSS dla najbardziej zewnętrznego elementu kontenera.",
+                "RollContainerName": "Kontener rzutu Niestandardowy CSS",
+                "RollContainerHint": "Nadpisywanie CSS dla poszczególnych elementów kontenera rzutu."
+            },
+            "GMDialog": {
+                "AutoCloseName": "Automatycznie zamknąć okno dialogowe MG?",
+                "AutoCloseHint": "Czy okno dialogowe powinno zostać zamknięte automatycznie po wysłaniu żądania."
+            },
+            "ResultsDialog": {
+                "ShowName": "Wyświetlać okno dialogowe wyników?",
+                "ShowHint": "Czy wyświetlać okno dialogowe wyników po wysłaniu żądania."
+            },
+            "RollDialog": {
+                "AutoCloseName": "Automatycznie zamykać okno dialogowe rzutu?",
+                "AutoCloseHint": "Czy okno dialogowe powinno być zamykane automatycznie po kliknięciu przycisku rzutu."
+            },
+            "OpenSettingsLabel": "Otwórz ustawienia"
+        }
+    }
+}
