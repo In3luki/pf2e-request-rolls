@@ -1,3 +1,4 @@
+import { getSetting } from "src/module/apps/helpers.ts";
 import { CssSettings, cssSettings } from "./data.svelte.ts";
 
 function registerSettings(): void {
@@ -76,10 +77,10 @@ function refreshCSS({ css, emit }: { css?: CssSettings; emit?: boolean } = {}): 
         cssSettings.outerContainer = css.outerContainer;
         cssSettings.rollContainer = css.rollContainer;
     } else {
-        cssSettings.groupContainer = game.settings.get("pf2e-request-rolls", "css.GroupContainer");
-        cssSettings.groupHeader = game.settings.get("pf2e-request-rolls", "css.GroupHeader");
-        cssSettings.outerContainer = game.settings.get("pf2e-request-rolls", "css.OuterContainer");
-        cssSettings.rollContainer = game.settings.get("pf2e-request-rolls", "css.RollContainer");
+        cssSettings.groupContainer = getSetting("pf2e-request-rolls", "css.GroupContainer");
+        cssSettings.groupHeader = getSetting("pf2e-request-rolls", "css.GroupHeader");
+        cssSettings.outerContainer = getSetting("pf2e-request-rolls", "css.OuterContainer");
+        cssSettings.rollContainer = getSetting("pf2e-request-rolls", "css.RollContainer");
     }
     if (emit) {
         game.socket.emit("module.pf2e-request-rolls", {

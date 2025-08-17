@@ -1,15 +1,15 @@
 import type {
     ApplicationConfiguration,
     ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
-import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
+} from "@pf2e/types/foundry/client/applications/_module.d.mts";
+import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
 import type { ChatMessagePF2e } from "@pf2e/types/index.ts";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
 import * as R from "remeda";
 import { cssSettings } from "src/settings/data.svelte.ts";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import { actionData, decompressFromBase64, hasNoContent, rollToInline, skillData } from "../helpers.ts";
+import { actionData, decompressFromBase64, getSetting, hasNoContent, rollToInline, skillData } from "../helpers.ts";
 import { ResultsDialog } from "../results-dialog/results-dialog.ts";
 import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
@@ -42,11 +42,9 @@ class GMDialog extends SvelteApplicationMixin<
             openSettings: async (): Promise<void> => {
                 // @ts-expect-error Missing type
                 ui.activeWindow?.toggleControls();
-                const sheet = game.settings.sheet as unknown as {
-                    tabGroups: { categories: string };
-                    render: (options?: { force: boolean }) => Promise<void>;
-                };
+                const sheet = game.settings.sheet;
                 sheet.tabGroups.categories = "pf2e-request-rolls";
+                // @ts-expect-error options type is not DeepPartial
                 sheet.render({ force: true });
             },
         },
@@ -58,7 +56,7 @@ class GMDialog extends SvelteApplicationMixin<
     protected root = Root;
 
     static fromMessage(message: ChatMessagePF2e): void {
-        const groups: RequestGroup[] | undefined = fu.getProperty(message.flags, "pf2e-request-rolls.groups");
+        const groups = fu.getProperty(message.flags, "pf2e-request-rolls.groups") as RequestGroup[] | undefined;
         if (!groups) return;
         new this({ initial: groups }).render({ force: true });
     }
@@ -80,9 +78,7 @@ class GMDialog extends SvelteApplicationMixin<
             initial: this.options.initial ?? [this.getNewGroupData()],
             skills: skillData,
             state: {
-                history: fu
-                    .deepClone(game.settings.get("pf2e-request-rolls", "history"))
-                    .sort((a, b) => b.time - a.time),
+                history: fu.deepClone(getSetting("pf2e-request-rolls", "history")).sort((a, b) => b.time - a.time),
             },
             traits: R.entries(sortStringRecord(CONFIG.PF2E.actionTraits)).map(([value, label]) => ({
                 label,

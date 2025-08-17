@@ -20,7 +20,6 @@
         "esModuleInterop": true,
         "sourceMap": true,
         "isolatedModules": true,
-        "baseUrl": ".",
         "rootDir": ".",
         "outDir": "dist",
         "allowUnusedLabels": false,
@@ -29,17 +28,18 @@
         "useDefineForClassFields": true,
         "noErrorTruncation": true,
         "paths": {
+            "*": ["./*"],
             "@module/*": [
-                "src/module/*"
+                "./src/module/*"
             ],
             "@util": [
-                "src/util/index.ts"
+                "./src/util/index.ts"
             ],
             "@util/*": [
-                "src/util/*"
+                "./src/util/*"
             ],
             "@pf2e/*": [
-                "node_modules/foundry-pf2e/*"
+                "./node_modules/foundry-pf2e/*"
             ]
         },
         "types": [
@@ -47,7 +47,8 @@
             "node"
         ],
         "typeRoots": [
-            "node_modules/@types"
+            "node_modules/@types",
+            "node_modules/foundry-pf2e"
         ]
     },
     "watchOptions": {

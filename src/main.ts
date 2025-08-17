@@ -60,13 +60,13 @@ Hooks.on("getChatLogEntryContext", (_chatlog, options) => {
     options.unshift({
         name: "PF2ERequestRolls.ContextMenuLabel",
         icon: '<i class="fa-solid fa-dice"></i>',
-        condition: ($li: JQuery) => {
+        condition: (element) => {
             if (!game.user.isGM) return false;
-            const message = game.messages.get($li[0].dataset.messageId, { strict: true });
+            const message = game.messages.get(element.dataset.messageId, { strict: true });
             return !!fu.getProperty(message.flags, "pf2e-request-rolls.groups");
         },
-        callback: ($li) => {
-            const message = game.messages.get($li[0].dataset.messageId, { strict: true });
+        callback: (element) => {
+            const message = game.messages.get(element.dataset.messageId, { strict: true });
             GMDialog.fromMessage(message);
         },
     });

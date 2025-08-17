@@ -12,6 +12,7 @@ import type {
     MinifiedCounteractRoll,
     MinifiedRequestGroup,
     RequestGroup,
+    RequestHistory,
     RequestRoll,
 } from "./types.ts";
 
@@ -145,6 +146,26 @@ function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkO
     }
 }
 
+function getSetting(name: "pf2e-request-rolls", setting: "history"): RequestHistory[];
+function getSetting(name: "pf2e-request-rolls", setting: "gmDialog.autoClose"): boolean;
+function getSetting(name: "pf2e-request-rolls", setting: "showResultsDialog"): boolean;
+function getSetting(name: "pf2e-request-rolls", setting: "css.GroupContainer"): string;
+function getSetting(name: "pf2e-request-rolls", setting: "css.GroupHeader"): string;
+function getSetting(name: "pf2e-request-rolls", setting: "css.OuterContainer"): string;
+function getSetting(name: "pf2e-request-rolls", setting: "css.RollContainer"): string;
+function getSetting(name: string, setting: string): unknown {
+    return game.settings.get(name, setting);
+}
+
+async function setSetting(
+    name: "pf2e-request-rolls",
+    setting: "history",
+    value: RequestGroup[],
+): Promise<RequestHistory[]>;
+async function setSetting(name: string, setting: string, value: unknown): Promise<unknown> {
+    return game.settings.set(name, setting, value);
+}
+
 function getOptions({ roll, requestId, requestOptions = true }: GetInlineLinkOptions): string[] {
     if (!requestOptions) return [];
     const options: string[] = [];
@@ -178,9 +199,7 @@ async function getInlineLink({
     roll: RequestRoll;
     requestId?: string;
 }): Promise<string> {
-    const enriched = await (
-        foundry.applications as unknown as { ux: { TextEditor: typeof TextEditor } }
-    ).ux.TextEditor.enrichHTML(rollToInline({ roll, requestId }));
+    const enriched = await foundry.applications.ux.TextEditor.enrichHTML(rollToInline({ roll, requestId }));
     const el = document.createElement("div");
     el.innerHTML = enriched;
     htmlQuery(el, "i[data-pf2-repost]")?.remove();
@@ -367,9 +386,11 @@ export {
     compressToBase64,
     decompressFromBase64,
     getInlineLink,
+    getSetting,
     hasNoContent,
     prepareActionData,
     prepareSkillData,
     rollToInline,
+    setSetting,
     skillData,
 };

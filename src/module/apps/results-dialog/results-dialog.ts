@@ -1,8 +1,9 @@
 import type {
+    ApplicationClosingOptions,
     ApplicationConfiguration,
     ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
-import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
+} from "@pf2e/types/foundry/client/applications/_module.d.mts";
+import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
 import type {
     ChatContextFlag,
     ChatMessagePF2e,
@@ -70,7 +71,7 @@ class ResultsDialog extends SvelteApplicationMixin<
         });
     }
 
-    protected override async _preClose(options: ApplicationRenderOptions): Promise<void> {
+    protected override async _preClose(options: ApplicationClosingOptions): Promise<void> {
         Hooks.off("createChatMessage", this.#hooks.createChatMessage);
         Hooks.off("deleteChatMessage", this.#hooks.deleteChatMessage);
         return super._preClose(options);
