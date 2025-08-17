@@ -56,16 +56,16 @@ Hooks.once("pf2e.systemReady", () => {
     prepareSkillData();
 });
 
-Hooks.on("getChatLogEntryContext", (_chatlog, options) => {
+Hooks.on("getChatMessageContextOptions", (_chatlog, options) => {
     options.unshift({
         name: "PF2ERequestRolls.ContextMenuLabel",
         icon: '<i class="fa-solid fa-dice"></i>',
-        condition: (element) => {
+        condition: (element: HTMLElement) => {
             if (!game.user.isGM) return false;
             const message = game.messages.get(element.dataset.messageId, { strict: true });
             return !!fu.getProperty(message.flags, "pf2e-request-rolls.groups");
         },
-        callback: (element) => {
+        callback: (element: HTMLElement) => {
             const message = game.messages.get(element.dataset.messageId, { strict: true });
             GMDialog.fromMessage(message);
         },
