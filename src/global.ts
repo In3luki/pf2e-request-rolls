@@ -13,4 +13,7 @@ declare global {
 interface RequestRollsGlobal {
     GMDialog: typeof GMDialog;
     RollDialog: typeof RollDialog;
+    settings: {
+        alwaysAddName: boolean;
+    };
 }

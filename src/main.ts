@@ -1,4 +1,4 @@
-import { prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
+import { getSetting, prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRequest } from "@module/apps/types.ts";
 import { htmlClosest } from "@util";
@@ -9,10 +9,14 @@ import "./styles/global.scss";
 globalThis.requestRolls = {
     GMDialog,
     RollDialog,
+    settings: {
+        alwaysAddName: false,
+    },
 };
 
 Hooks.once("init", () => {
     registerSettings();
+    requestRolls.settings.alwaysAddName = getSetting("pf2e-request-rolls", "gmDialog.alwaysAddName");
 
     CONFIG.TextEditor.enrichers.push({
         pattern: /@RequestRolls\[(?<data>\S+)\](?:\{(?<label>[^}]+)\})?/g,

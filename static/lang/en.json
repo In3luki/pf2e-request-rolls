@@ -64,6 +64,8 @@
                 "RollContainerHint": "CSS overrides for the individual roll container elements."
             },
             "GMDialog": {
+                "AlwaysAddName": "Always add name",
+                "AlwaysAddNameHint": "Always append the name of a skill or action to the check label.",
                 "AutoCloseName": "Close GM dialog automatically?",
                 "AutoCloseHint": "Whether the dialog should be closed automatically after a request was sent."
             },
@@ -73,7 +75,9 @@
             },
             "RollDialog": {
                 "AutoCloseName": "Close roll dialog automatically?",
-                "AutoCloseHint": "Whether the dialog should be closed automatically after a roll was clicked."
+                "AutoCloseHint": "Whether the dialog should be closed automatically after a roll was clicked.",
+                "playSoundInBackgroundName": "Play sound in background?",
+                "playSoundInBackgroundHint": "Whether to play a sound when a new roll dialog opens while the browser is in the background."
             },
             "OpenSettingsLabel": "Open Settings"
         }

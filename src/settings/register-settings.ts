@@ -20,6 +20,18 @@ function registerSettings(): void {
         default: false,
     });
 
+    game.settings.register("pf2e-request-rolls", "gmDialog.alwaysAddName", {
+        name: "PF2ERequestRolls.Settings.GMDialog.AlwaysAddName",
+        hint: "PF2ERequestRolls.Settings.GMDialog.AlwaysAddNameHint",
+        config: game.data.users.some((u) => u._id === currentUserId && u.role === 4),
+        scope: "client",
+        type: Boolean,
+        default: false,
+        onChange: (choice) => {
+            requestRolls.settings.alwaysAddName = choice as boolean;
+        },
+    });
+
     game.settings.register("pf2e-request-rolls", "showResultsDialog", {
         name: "PF2ERequestRolls.Settings.ResultsDialog.ShowName",
         hint: "PF2ERequestRolls.Settings.ResultsDialog.ShowHint",
@@ -27,6 +39,15 @@ function registerSettings(): void {
         scope: "client",
         type: Boolean,
         default: true,
+    });
+
+    game.settings.register("pf2e-request-rolls", "playSoundInBackground", {
+        name: "PF2ERequestRolls.Settings.RollDialog.playSoundInBackgroundName",
+        hint: "PF2ERequestRolls.Settings.RollDialog.playSoundInBackgroundHint",
+        config: true,
+        scope: "client",
+        type: Boolean,
+        default: false,
     });
 
     game.settings.register("pf2e-request-rolls", "css.OuterContainer", {
