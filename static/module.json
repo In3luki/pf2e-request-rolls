@@ -32,6 +32,11 @@
             "lang": "en",
             "name": "English",
             "path": "./lang/en.json"
+        },
+        {
+            "lang": "pl",
+            "name": "Polski",
+            "path": "./lang/pl.json"
         }
     ],
     "url": "https://github.com/in3luki/pf2e-request-rolls",
