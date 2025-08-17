@@ -3,8 +3,8 @@ import type {
     ApplicationConfiguration,
     ApplicationRenderContext,
     ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
-import type ApplicationV2 from "@pf2e/types/foundry/client-esm/applications/api/application.d.ts";
+} from "@pf2e/types/foundry/client/applications/_module.d.mts";
+import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
 import * as svelte from "svelte";
 
 interface SvelteApplicationRenderContext {

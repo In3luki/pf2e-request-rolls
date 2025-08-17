@@ -1,9 +1,10 @@
 import type {
     ApplicationConfiguration,
     ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client-esm/applications/_types.d.ts";
-import type { ApplicationV2 } from "@pf2e/types/foundry/client-esm/applications/api/module.d.ts";
+} from "@pf2e/types/foundry/client/applications/_module.d.mts";
+import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
 import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
+import { getSetting } from "../helpers.ts";
 import type { SocketRollRequest } from "../types.ts";
 import { testRequest } from "./data.ts";
 import Root from "./roll-dialog.svelte";
@@ -33,6 +34,14 @@ class RollDialog extends SvelteApplicationMixin<
     static async openTestDialog(): Promise<RollDialog> {
         const request = fu.deepClone(testRequest);
         return new this({ request }).render(true);
+    }
+
+    protected override async _onRender(context: object, options: ApplicationRenderOptions): Promise<void> {
+        super._onRender(context, options);
+
+        if (!document.hasFocus() && getSetting("pf2e-request-rolls", "playSoundInBackground")) {
+            new Audio("./sounds/notify.wav").play();
+        }
     }
 
     protected override _initializeApplicationOptions(

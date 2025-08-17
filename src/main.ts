@@ -1,4 +1,4 @@
-import { prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
+import { getSetting, prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
 import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRequest } from "@module/apps/types.ts";
 import { htmlClosest } from "@util";
@@ -9,10 +9,14 @@ import "./styles/global.scss";
 globalThis.requestRolls = {
     GMDialog,
     RollDialog,
+    settings: {
+        alwaysAddName: false,
+    },
 };
 
 Hooks.once("init", () => {
     registerSettings();
+    requestRolls.settings.alwaysAddName = getSetting("pf2e-request-rolls", "gmDialog.alwaysAddName");
 
     CONFIG.TextEditor.enrichers.push({
         pattern: /@RequestRolls\[(?<data>\S+)\](?:\{(?<label>[^}]+)\})?/g,
@@ -56,17 +60,17 @@ Hooks.once("pf2e.systemReady", () => {
     prepareSkillData();
 });
 
-Hooks.on("getChatLogEntryContext", (_chatlog, options) => {
+Hooks.on("getChatMessageContextOptions", (_chatlog, options) => {
     options.unshift({
         name: "PF2ERequestRolls.ContextMenuLabel",
         icon: '<i class="fa-solid fa-dice"></i>',
-        condition: ($li: JQuery) => {
+        condition: (element: HTMLElement) => {
             if (!game.user.isGM) return false;
-            const message = game.messages.get($li[0].dataset.messageId, { strict: true });
+            const message = game.messages.get(element.dataset.messageId, { strict: true });
             return !!fu.getProperty(message.flags, "pf2e-request-rolls.groups");
         },
-        callback: ($li) => {
-            const message = game.messages.get($li[0].dataset.messageId, { strict: true });
+        callback: (element: HTMLElement) => {
+            const message = game.messages.get(element.dataset.messageId, { strict: true });
             GMDialog.fromMessage(message);
         },
     });

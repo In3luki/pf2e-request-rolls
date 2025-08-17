@@ -12,6 +12,7 @@ import type {
     MinifiedCounteractRoll,
     MinifiedRequestGroup,
     RequestGroup,
+    RequestHistory,
     RequestRoll,
 } from "./types.ts";
 
@@ -145,6 +146,28 @@ function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkO
     }
 }
 
+function getSetting(name: "pf2e-request-rolls", setting: "history"): RequestHistory[];
+function getSetting(name: "pf2e-request-rolls", setting: "playSoundInBackground"): boolean;
+function getSetting(name: "pf2e-request-rolls", setting: "gmDialog.alwaysAddName"): boolean;
+function getSetting(name: "pf2e-request-rolls", setting: "gmDialog.autoClose"): boolean;
+function getSetting(name: "pf2e-request-rolls", setting: "showResultsDialog"): boolean;
+function getSetting(name: "pf2e-request-rolls", setting: "css.GroupContainer"): string;
+function getSetting(name: "pf2e-request-rolls", setting: "css.GroupHeader"): string;
+function getSetting(name: "pf2e-request-rolls", setting: "css.OuterContainer"): string;
+function getSetting(name: "pf2e-request-rolls", setting: "css.RollContainer"): string;
+function getSetting(name: string, setting: string): unknown {
+    return game.settings.get(name, setting);
+}
+
+async function setSetting(
+    name: "pf2e-request-rolls",
+    setting: "history",
+    value: RequestGroup[],
+): Promise<RequestHistory[]>;
+async function setSetting(name: string, setting: string, value: unknown): Promise<unknown> {
+    return game.settings.set(name, setting, value);
+}
+
 function getOptions({ roll, requestId, requestOptions = true }: GetInlineLinkOptions): string[] {
     if (!requestOptions) return [];
     const options: string[] = [];
@@ -154,16 +177,23 @@ function getOptions({ roll, requestId, requestOptions = true }: GetInlineLinkOpt
 }
 
 function getLabel(roll: RequestRoll): string | undefined {
-    if (!roll.label?.includes("$")) return roll.label;
+    let label = roll.label;
+    if (!label?.includes("$")) {
+        if (label && requestRolls.settings.alwaysAddName) {
+            label += " ($s)";
+        } else {
+            return label;
+        }
+    }
 
     switch (roll.type) {
         case "action":
-            return roll.label
-                .replaceAll("$a", actions.get(roll.slug) ?? "$a")
+            return label
+                .replaceAll("$s", actions.get(roll.slug) ?? "$s")
                 .replaceAll("$s", allSkills.get(roll.statistic ?? "") ?? "$s");
         case "check":
         case "counteract":
-            return roll.label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
+            return label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
         default:
             return "";
     }
@@ -178,9 +208,7 @@ async function getInlineLink({
     roll: RequestRoll;
     requestId?: string;
 }): Promise<string> {
-    const enriched = await (
-        foundry.applications as unknown as { ux: { TextEditor: typeof TextEditor } }
-    ).ux.TextEditor.enrichHTML(rollToInline({ roll, requestId }));
+    const enriched = await foundry.applications.ux.TextEditor.enrichHTML(rollToInline({ roll, requestId }));
     const el = document.createElement("div");
     el.innerHTML = enriched;
     htmlQuery(el, "i[data-pf2-repost]")?.remove();
@@ -367,9 +395,11 @@ export {
     compressToBase64,
     decompressFromBase64,
     getInlineLink,
+    getSetting,
     hasNoContent,
     prepareActionData,
     prepareSkillData,
     rollToInline,
+    setSetting,
     skillData,
 };
