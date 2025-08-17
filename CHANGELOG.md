@@ -1,3 +1,18 @@
+## 1.1.0
+
+### New Features
+
+-   Add a setting to always append the action or skill name to custom check labels ([#40](https://github.com/In3luki/pf2e-request-rolls/pull/40))
+-   Add a setting to play a sound when a new roll is requested and the browser window is not active ([#40](https://github.com/In3luki/pf2e-request-rolls/pull/40))
+
+### Bugfixes
+
+-   Fix chat message context menu not working ([#40](https://github.com/In3luki/pf2e-request-rolls/pull/40))
+
+### Translations
+
+-   Add polish translation (@Lionheart) ([#39](https://github.com/In3luki/pf2e-request-rolls/pull/39))
+
 ## 1.0.2
 
 ### Bugfixes
