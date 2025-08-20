@@ -64,6 +64,8 @@
                 "RollContainerHint": "Nadpisywanie CSS dla poszczególnych elementów kontenera rzutu."
             },
             "GMDialog": {
+                "AlwaysAddName": "Zawsze dodawaj nazwę",
+                "AlwaysAddNameHint": "Zawsze dodawaj nazwę umiejętności lub akcji do etykiety testu.",
                 "AutoCloseName": "Automatycznie zamknąć okno dialogowe MG?",
                 "AutoCloseHint": "Czy okno dialogowe powinno zostać zamknięte automatycznie po wysłaniu żądania."
             },
@@ -73,7 +75,9 @@
             },
             "RollDialog": {
                 "AutoCloseName": "Automatycznie zamykać okno dialogowe rzutu?",
-                "AutoCloseHint": "Czy okno dialogowe powinno być zamykane automatycznie po kliknięciu przycisku rzutu."
+                "AutoCloseHint": "Czy okno dialogowe powinno być zamykane automatycznie po kliknięciu przycisku rzutu.",
+                "playSoundInBackgroundName": "Odtwarzać dźwięk w tle?",
+                "playSoundInBackgroundHint": "Czy odtwarzać dźwięk, gdy okno dialogowe nowego rzutu otworzy się, gdy przeglądarka jest w tle."
             },
             "OpenSettingsLabel": "Otwórz ustawienia"
         }
