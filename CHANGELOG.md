@@ -1,3 +1,13 @@
+## 1.1.1
+
+### Bugfixes
+
+-   Fix `alwaysAddName` setting only working for the client that set it ([#43](https://github.com/In3luki/pf2e-request-rolls/pull/43))
+
+### Translations
+
+-   Update polish translation (@Lioheart) ([#42](https://github.com/In3luki/pf2e-request-rolls/pull/42))
+
 ## 1.1.0
 
 ### New Features
@@ -11,7 +21,7 @@
 
 ### Translations
 
--   Add polish translation (@Lionheart) ([#39](https://github.com/In3luki/pf2e-request-rolls/pull/39))
+-   Add polish translation (@Lioheart) ([#39](https://github.com/In3luki/pf2e-request-rolls/pull/39))
 
 ## 1.0.2
 
