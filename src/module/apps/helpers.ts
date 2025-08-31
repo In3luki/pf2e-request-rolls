@@ -195,7 +195,7 @@ function getLabel(roll: RequestRoll): string | undefined {
         case "counteract":
             return label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
         default:
-            return "";
+            return label;
     }
 }
 

@@ -24,12 +24,10 @@ function registerSettings(): void {
         name: "PF2ERequestRolls.Settings.GMDialog.AlwaysAddName",
         hint: "PF2ERequestRolls.Settings.GMDialog.AlwaysAddNameHint",
         config: game.data.users.some((u) => u._id === currentUserId && u.role === 4),
-        scope: "client",
+        scope: "world",
         type: Boolean,
         default: false,
-        onChange: (choice) => {
-            requestRolls.settings.alwaysAddName = choice as boolean;
-        },
+        requiresReload: true,
     });
 
     game.settings.register("pf2e-request-rolls", "showResultsDialog", {
