@@ -12,8 +12,9 @@ import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../sv
 import { actionData, decompressFromBase64, getSetting, hasNoContent, rollToInline, skillData } from "../helpers.ts";
 import { ResultsDialog } from "../results-dialog/results-dialog.ts";
 import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
-import type { LabeledValue, RequestGroup, RequestHistory, RequestRoll, SocketRollRequest } from "../types.ts";
+import type { LabeledValue, RequestGroup, RequestHistory, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
+import { updateGMDialogState } from "./state.svelte.ts";
 
 class GMDialog extends SvelteApplicationMixin<
     AbstractConstructorOf<ApplicationV2> & { DEFAULT_OPTIONS: DeepPartial<GMDialogConfiguration> }
@@ -71,11 +72,12 @@ class GMDialog extends SvelteApplicationMixin<
     }
 
     protected override async _prepareContext(_options: ApplicationRenderOptions): Promise<GMDialogContext> {
+        updateGMDialogState(this.options.initial);
+
         return {
             actions: actionData,
             dcAdjustments: this.#prepareDCAdjustments(),
             foundryApp: this,
-            initial: this.options.initial ?? [this.getNewGroupData()],
             skills: skillData,
             state: {
                 history: fu.deepClone(getSetting("pf2e-request-rolls", "history")).sort((a, b) => b.time - a.time),
@@ -95,48 +97,6 @@ class GMDialog extends SvelteApplicationMixin<
             throw Error("This Application is only usable by GMs!");
         }
         return super._preFirstRender(context, options);
-    }
-
-    getNewGroupData(): RequestGroup {
-        return {
-            id: fu.randomID(),
-            rolls: [],
-            title: "",
-        };
-    }
-
-    getNewRollData(type: RequestRoll["type"]): RequestRoll {
-        switch (type) {
-            case "action":
-                return {
-                    dc: 10,
-                    id: fu.randomID(),
-                    slug: actionData[0].slug,
-                    statistic: actionData[0].statistic,
-                    variant: actionData[0].variants.at(0)?.slug,
-                    type: "action",
-                };
-            case "check":
-                return {
-                    dc: 10,
-                    id: fu.randomID(),
-                    traits: [],
-                    slug: "perception",
-                    type: "check",
-                };
-            case "counteract":
-                return {
-                    dc: 10,
-                    id: fu.randomID(),
-                    label: game.i18n.localize("PF2ERequestRolls.GMDialog.Counteract.Label"),
-                    slug: "arcana",
-                    sourceRank: 0,
-                    targetRank: 0,
-                    type: "counteract",
-                };
-            default:
-                throw Error(`Unknown type ${type}`);
-        }
     }
 
     async sendToChat(groups: RequestGroup[]): Promise<boolean> {
@@ -309,7 +269,6 @@ interface GMDialogContext extends SvelteApplicationRenderContext {
     actions: ActionRenderData[];
     dcAdjustments: LabeledValue[];
     foundryApp: GMDialog;
-    initial: RequestGroup[];
     skills: {
         skills: LabeledValue[];
         lores: LabeledValue[];

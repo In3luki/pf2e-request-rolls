@@ -245,6 +245,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
     for (const group of groups) {
         const mGroup: MinifiedRequestGroup = {
             i: group.id,
+            m: group.macro,
             r: [],
             ...(group.title ? { t: group.title } : {}),
         };
@@ -312,6 +313,7 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     for (const group of mGroups) {
         const g: RequestGroup = {
             id: group.i,
+            macro: group.m,
             rolls: [],
             title: group.t ?? "",
         };

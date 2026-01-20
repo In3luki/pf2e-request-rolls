@@ -7,9 +7,10 @@
     import { localize } from "@util/misc.ts";
     import TraitsSelect from "@module/components/traits/traits-select.svelte";
     import { compressToBase64, getInlineLink, rollToInline } from "../helpers.ts";
+    import { getNewGroupData, getNewRollData, rollRequestState } from "./state.svelte.ts";
 
     const props: GMDialogContext = $props();
-    const requests: RequestGroup[] = $state(props.initial);
+    const requests = rollRequestState.groups;
     let selectedGroupId = $state(requests[0]?.id ?? "");
     let selectedGroup = $derived(requests.find((r) => r.id === selectedGroupId) ?? requests[0]);
     let selectedRollId: string | null = $state(null);
@@ -27,13 +28,13 @@
         if (requests.length === 1 && requests[0].rolls.length === 0) {
             return;
         }
-        requests.push(props.foundryApp.getNewGroupData());
+        requests.push(getNewGroupData());
         selectedGroupId = requests[requests.length - 1].id;
         selectedRollId = null;
     }
 
     function createNewRoll(type: RequestRoll["type"]): void {
-        selectedGroup.rolls.push(props.foundryApp.getNewRollData(type));
+        selectedGroup.rolls.push(getNewRollData(type));
         selectedRollId = selectedGroup.rolls.at(-1)?.id ?? null;
     }
 
@@ -113,7 +114,7 @@
             if (!confirmed) return;
         }
         untrack(() => (requests.length = 0));
-        requests.push(props.foundryApp.getNewGroupData());
+        requests.push(getNewGroupData());
     }
 
     function switchActive(group: RequestGroup, roll?: RequestRoll): void {
@@ -134,7 +135,7 @@
         if (confirmed) {
             const index = requests.findIndex((r) => r === request);
             if (requests.length === 1) {
-                requests.push(props.foundryApp.getNewGroupData());
+                requests.push(getNewGroupData());
             }
             if (selectedGroupId === request.id) {
                 const newActive = requests.at(Math.max(index - 1, 0));
@@ -162,6 +163,14 @@
             }
             selectedGroup.rolls.findSplice((r) => r === roll);
         }
+    }
+
+    function handleMacroDrop(event: DragEvent & { currentTarget: EventTarget & HTMLDivElement }): void {
+        const data: { type: "Macro"; uuid: string } = JSON.parse(event.dataTransfer?.getData("text/plain") ?? "{}");
+        if (data?.type !== "Macro") {
+            return;
+        }
+        selectedGroup.macro = data.uuid;
     }
 </script>
 
@@ -237,6 +246,26 @@
                 {@render counteract(editing)}
             {/if}
         {/if}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div
+            class="macro-drop-zone"
+            class:empty={!selectedGroup.macro}
+            ondrop={(e) => handleMacroDrop(e)}
+            data-tooltip="PF2ERequestRolls.GMDialog.Macros.Tooltip"
+        >
+            {#if !selectedGroup.macro}
+                {localize("GMDialog.Macros.DropHere")}
+            {:else}
+                <div class="name">
+                    {fu.fromUuidSync(selectedGroup.macro)?.name}
+                </div>
+                <div class="controls">
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
+                    <i class="fa-solid fa-trash" onclick={() => delete selectedGroup.macro}></i>
+                </div>
+            {/if}
+        </div>
     </div>
     <div class="preview">
         {#each requests as request (request.id)}
@@ -525,6 +554,19 @@
         margin-bottom: 1rem;
     }
 
+    .controls {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-width: 1.5em;
+        margin-left: 5px;
+
+        i {
+            cursor: pointer;
+            margin: 0.1em;
+        }
+    }
+
     .edit {
         .add-buttons {
             display: flex;
@@ -543,6 +585,24 @@
 
         .check-select {
             margin-bottom: 5px;
+        }
+
+        .macro-drop-zone {
+            display: flex;
+            flex: 1;
+            align-items: center;
+            justify-content: space-between;
+
+            padding: 0.3em;
+            background-color: var(--pf2e-rr--preview-bg-color);
+            border: 1px solid var(--pf2e-rr--preview-border-color);
+            border-radius: 4px;
+            margin-bottom: 0.5em;
+
+            &.empty {
+                opacity: 0.75;
+                justify-content: center;
+            }
         }
     }
 
@@ -574,19 +634,6 @@
                 &.active {
                     border: 0.1em dashed var(--pf2e-rr--preview-border-color);
                 }
-            }
-        }
-
-        .controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-width: 1.5em;
-            margin-left: 5px;
-
-            i {
-                cursor: pointer;
-                margin: 0.1em;
             }
         }
 

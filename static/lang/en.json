@@ -29,6 +29,11 @@
             "HistoryLabel": "History",
             "Label": "Label",
             "LabelPlaceholder": "Enter optional label",
+            "Macros": {
+                "DropHere": "Drop Macro Here",
+                "Tooltip": "This macro will be executed for each roll result. The macro context will have a <strong>rrData</strong> object that contains information about the requested roll, the rolling actor and the roll outcome.",
+                "Missing": "The Macro with UUID {uuid} is missing!"
+            },
             "NoActivePlayersWarning": "No active players found!",
             "NoContentWarning": "Request has no content!",
             "NoPlayersSelectedWarning": "No players were selected!",

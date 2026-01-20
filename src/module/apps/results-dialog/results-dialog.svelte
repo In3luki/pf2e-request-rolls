@@ -4,6 +4,7 @@
     import { getInlineLink } from "../helpers.ts";
     import type { CounteractRoll } from "../types.ts";
     import type { DegreeOfSuccessString } from "foundry-pf2e";
+    import { resultState } from "./state.svelte.ts";
 
     const props: ResultsDialogContext = $props();
 
@@ -23,7 +24,7 @@
 </script>
 
 <div class="preview">
-    {#each props.state.results as result (result.userId)}
+    {#each resultState.results as result (result.userId)}
         <div class="result-container">
             <div class="header">
                 <strong>{result.name}</strong>
@@ -52,8 +53,10 @@
                             <span class="outcome {group.outcome}">
                                 {game.i18n.localize(`PF2E.Check.Result.Degree.Check.${group.outcome}`)}
                             </span>
-                            {#if group.reroll === "hero-point"}
+                            {#if group.reroll === "hero-points"}
                                 <i class="fa-solid fa-hospital-symbol reroll-indicator"></i>
+                            {:else if group.reroll === "mythic-points"}
+                                <i class="fa-solid fa-circle-m reroll-indicator"></i>
                             {:else if group.reroll === "other"}
                                 <i class="fa-solid fa-dice reroll-indicator"></i>
                             {/if}

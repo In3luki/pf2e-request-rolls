@@ -32,6 +32,7 @@ interface CounteractRoll extends BaseRoll {
 interface RequestGroup {
     rolls: (ActionRoll | CheckRoll | CounteractRoll)[];
     id: string;
+    macro?: string;
     title: string;
 }
 
@@ -84,6 +85,8 @@ interface MinifiedRequestGroup {
     r: (MinifiedActionRoll | MinifiedCheckRoll | MinifiedCounteractRoll)[];
     /** id */
     i: string;
+    /** macro */
+    m?: string;
     /** title */
     t?: string;
 }
@@ -107,7 +110,7 @@ interface SocketCSSUpdate {
     type: "css-update";
 }
 
-type LabeledValue = { label: string; value: string };
+type LabeledValue<T extends string = string> = { label: string; value: T };
 type RequestRoll = ActionRoll | CheckRoll | CounteractRoll;
 type SocketRequest = SocketCSSUpdate | SocketRollRequest;
 
