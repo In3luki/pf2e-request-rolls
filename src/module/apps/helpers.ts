@@ -57,6 +57,8 @@ function prepareActionData(): void {
         }
         actionData.push(data);
     }
+
+    actions.set("spell-attack", game.i18n.localize("PF2E.SpellAttackLabel"));
 }
 
 function prepareSkillData(): void {
@@ -193,7 +195,9 @@ function getLabel(roll: RequestRoll): string | undefined {
                 .replaceAll("$s", allSkills.get(roll.statistic ?? "") ?? "$s");
         case "check":
         case "counteract":
-            return label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
+            return label
+                .replaceAll("$s", actions.get(roll.slug) ?? "$s")
+                .replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
         default:
             return label;
     }

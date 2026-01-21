@@ -75,6 +75,12 @@
         roll.statistic = action?.statistic;
     }
 
+    function onChangeCheck(event: Event & { currentTarget: HTMLSelectElement }, roll: CheckRoll): void {
+        if (roll.against && event.currentTarget.value !== "spell-attack") {
+            delete roll.against;
+        }
+    }
+
     function onClickRoll(event: MouseEvent, group: RequestGroup, roll: RequestRoll): void {
         if (!event.ctrlKey) {
             event.stopPropagation();
@@ -391,7 +397,13 @@
 {#snippet check(roll: CheckRoll)}
     <div class="form-group">
         <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.Roll.Type")}:</label>
-        <select class="check-select" id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
+        <select
+            class="check-select"
+            id="check-select-{roll.id}"
+            name="skills"
+            bind:value={roll.slug}
+            onchange={(e) => onChangeCheck(e, roll)}
+        >
             <option value="perception">{game.i18n.localize("PF2E.PerceptionHeader")}</option>
             <option value="flat">{game.i18n.localize("PF2E.FlatCheck")}</option>
             <option value="spell-attack">{game.i18n.localize("PF2E.SpellAttackLabel")}</option>
@@ -470,6 +482,7 @@
     <div class="form-group">
         <label for="check-select-{roll.id}">{game.i18n.localize("PF2E.Roll.Type")}:</label>
         <select class="check-select" id="check-select-{roll.id}" name="skills" bind:value={roll.slug}>
+            <option value="spell-attack">{game.i18n.localize("PF2E.SpellAttackLabel")}</option>
             {#each props.skills.skills as skill}
                 <option value={skill.value}>{skill.label}</option>
             {/each}

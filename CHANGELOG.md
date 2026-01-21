@@ -1,3 +1,13 @@
+## 1.2.0
+
+### New Features
+
+-   Add the ability to attach a macro to a roll request. The macro context receives an object containing information about the requested roll, the rolling actor and the outcome. See the PR for more information ([#46](https://github.com/In3luki/pf2e-request-rolls/pull/46))
+
+### Enhancements
+
+-   Add `Spell Attack` as option for counteract checks ([#46](https://github.com/In3luki/pf2e-request-rolls/pull/46))
+
 ## 1.1.1
 
 ### Bugfixes
