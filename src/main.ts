@@ -3,6 +3,7 @@ import { GMDialog, RollDialog } from "@module/apps/index.ts";
 import type { SocketRequest } from "@module/apps/types.ts";
 import { htmlClosest } from "@util";
 import * as R from "remeda";
+import { updateDragState } from "./module/apps/gm-dialog/state.svelte.ts";
 import { refreshCSS, registerSettings } from "./settings/register-settings.ts";
 import "./styles/global.scss";
 
@@ -53,6 +54,15 @@ Hooks.once("ready", () => {
             }
         }
     });
+
+    document.addEventListener("drag", (event) => {
+        const data: { type: "Macro"; uuid: string } = JSON.parse(event.dataTransfer?.getData("text/plain") ?? "{}");
+        if (data?.type !== "Macro") {
+            return;
+        }
+        updateDragState(true);
+    });
+    document.addEventListener("dragend", () => updateDragState(false));
 });
 
 Hooks.once("pf2e.systemReady", () => {

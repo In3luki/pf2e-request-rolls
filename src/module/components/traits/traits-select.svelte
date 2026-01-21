@@ -34,10 +34,47 @@
         empty: game.i18n.localize("PF2E.CompendiumBrowser.TraitsComponent.Empty"),
         nomatch: game.i18n.localize("PF2E.CompendiumBrowser.TraitsComponent.NoMatch"),
     };
+
+    // Svelecte position resolver that puts it on the body
+    function positionResolver(node: HTMLElement) {
+        // Add classes to element, including theme
+        const themed = node.closest(".themed, body");
+        const theme = [...(themed?.classList ?? [])].find((c) => c.startsWith("theme-"));
+        node.classList.add("detached", "pf2e");
+        if (theme) {
+            node.classList.add("themed", theme);
+        }
+
+        let destroyed = false;
+        const selectElement = node.parentElement;
+
+        function positionElement() {
+            if (destroyed) return; // end the request animation loop if destroyed
+
+            if (selectElement && node.classList.contains("is-open")) {
+                const bounds = selectElement.getBoundingClientRect();
+                node.style.left = `${bounds.left}px`;
+                node.style.top = `${bounds.bottom}px`;
+                node.style.minWidth = `${bounds.width}px`;
+            }
+
+            requestAnimationFrame(positionElement);
+        }
+
+        document.body.appendChild(node);
+        positionElement();
+
+        return {
+            destroy: () => {
+                destroyed = false;
+                selectElement?.appendChild(node);
+            },
+        };
+    }
 </script>
 
 <div class="traits-select">
-    <Svelecte {...props} {i18n} />
+    <Svelecte {...props} class="request-rolls" {i18n} {positionResolver} />
 </div>
 
 <style lang="scss">
@@ -47,7 +84,9 @@
     }
 
     :global {
-        #pf2e-request-rolls {
+        .svelecte.request-rolls,
+        .sv_dropdown.request-rolls {
+            /** Svelecte Colors */
             --sv-color: var(--color-dark-1);
             --sv-item-btn-color: var(--color-text-trait);
             --sv-item-btn-color-hover: var(--color-text-trait);
@@ -58,6 +97,7 @@
 
             --sv-selection-multi-wrap-padding: 0.15em;
             --sv-selection-gap: 0.2em;
+            --sv-min-height: 2rem; /* match var(--input-height), which is not exposed */
 
             .sv-input--text {
                 width: auto;
@@ -79,61 +119,27 @@
                 }
             }
 
-            .sv-control {
-                cursor: text;
-                width: 96%;
-
-                .sv-buttons {
-                    .sv-btn-separator {
-                        display: none;
-                    }
-                    button[data-action="toggle"] {
-                        display: none;
-                    }
-                }
-            }
-
-            .sv-item--container {
-                border: solid var(--color-border-trait);
-                border-width: 1px 3px;
-            }
-
-            .sv-item--wrap.in-selection {
-                color: var(--color-text-trait);
-                font: 500 var(--font-size-10) var(--sans-serif);
-                text-transform: uppercase;
-                line-height: 1.75em;
-
-                .sv-item--content {
-                    margin: 0 0.25em;
-                }
-            }
-
-            .sv-item--btn {
-                display: inline-flex;
-                width: auto;
-                border-width: 0;
-                background-color: var(--sv-item-btn-bg);
-                border-radius: unset;
-                padding: 0 var(--space-1);
+            /** Undo foundry overrides */
+            button {
                 height: unset;
                 min-height: unset;
-
-                &:hover {
-                    background-color: #c77777;
-                    i {
-                        color: var(--sv-item-btn-color-hover);
-                    }
-                }
+                border-radius: unset;
             }
         }
 
-        .theme-dark #pf2e-request-rolls {
+        body.theme-dark .application:not(.themed) .svelecte.request-rolls,
+        .themed.theme-dark .svelecte.request-rolls,
+        .themed.theme-dark.sv_dropdown.request-rolls {
             --sv-color: var(--color-light-3);
             --sv-control-bg: var(--color-cool-4);
             --sv-icon-color: var(--color-light-3);
             --sv-dropdown-bg: var(--color-dark-2);
             --sv-dropdown-active-bg: #553d3d;
+        }
+
+        body > .sv_dropdown.request-rolls.detached {
+            min-width: 0;
+            z-index: 5000 !important;
         }
     }
 </style>

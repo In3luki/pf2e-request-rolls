@@ -57,6 +57,8 @@ function prepareActionData(): void {
         }
         actionData.push(data);
     }
+
+    actions.set("spell-attack", game.i18n.localize("PF2E.SpellAttackLabel"));
 }
 
 function prepareSkillData(): void {
@@ -193,7 +195,9 @@ function getLabel(roll: RequestRoll): string | undefined {
                 .replaceAll("$s", allSkills.get(roll.statistic ?? "") ?? "$s");
         case "check":
         case "counteract":
-            return label.replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
+            return label
+                .replaceAll("$s", actions.get(roll.slug) ?? "$s")
+                .replaceAll("$s", allSkills.get(roll.slug) ?? "$s");
         default:
             return label;
     }
@@ -245,6 +249,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
     for (const group of groups) {
         const mGroup: MinifiedRequestGroup = {
             i: group.id,
+            m: group.macro,
             r: [],
             ...(group.title ? { t: group.title } : {}),
         };
@@ -312,6 +317,7 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     for (const group of mGroups) {
         const g: RequestGroup = {
             id: group.i,
+            macro: group.m,
             rolls: [],
             title: group.t ?? "",
         };
