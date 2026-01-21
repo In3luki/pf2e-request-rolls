@@ -55,13 +55,7 @@ Hooks.once("ready", () => {
         }
     });
 
-    document.addEventListener("drag", (event) => {
-        const data: { type: "Macro"; uuid: string } = JSON.parse(event.dataTransfer?.getData("text/plain") ?? "{}");
-        if (data?.type !== "Macro") {
-            return;
-        }
-        updateDragState(true);
-    });
+    document.addEventListener("drag", () => updateDragState(true));
     document.addEventListener("dragend", () => updateDragState(false));
 });
 

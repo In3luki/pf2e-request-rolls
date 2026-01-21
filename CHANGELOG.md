@@ -1,3 +1,9 @@
+## 1.2.1
+
+### Bugfixes
+
+-   Handle different behaviors for drag events with Firefox and Chrome ([#47](https://github.com/In3luki/pf2e-request-rolls/pull/47))
+
 ## 1.2.0
 
 ### New Features
