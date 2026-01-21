@@ -2,7 +2,7 @@ import { actionData } from "../helpers.ts";
 import type { RequestGroup, RequestRoll } from "../types.ts";
 
 /** The GM Dialog svelte state */
-const rollRequestState: { groups: RequestGroup[] } = $state({ groups: [] });
+const rollRequestState: { dragActive: boolean; groups: RequestGroup[] } = $state({ dragActive: false, groups: [] });
 
 function getNewGroupData(): RequestGroup {
     return {
@@ -54,4 +54,16 @@ function updateGMDialogState(data?: RequestGroup[]): void {
     rollRequestState.groups = data ?? [getNewGroupData()];
 }
 
-export { getNewGroupData, getNewRollData, getRequestGroupsSnapshot, rollRequestState, updateGMDialogState };
+function updateDragState(dragging: boolean): void {
+    if (rollRequestState.dragActive && !dragging) rollRequestState.dragActive = false;
+    rollRequestState.dragActive = dragging;
+}
+
+export {
+    getNewGroupData,
+    getNewRollData,
+    getRequestGroupsSnapshot,
+    rollRequestState,
+    updateDragState,
+    updateGMDialogState,
+};

@@ -226,6 +226,29 @@
                 &plus;
             </button>
         </div>
+        {#if selectedGroup.macro || rollRequestState.dragActive}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div
+                class="macro-drop-zone"
+                class:empty={!selectedGroup.macro}
+                ondrop={(e) => handleMacroDrop(e)}
+                data-tooltip="PF2ERequestRolls.GMDialog.Macros.Tooltip"
+                transition:fade
+            >
+                {#if !selectedGroup.macro}
+                    {localize("GMDialog.Macros.DropHere")}
+                {:else}
+                    <div class="name">
+                        {fu.fromUuidSync(selectedGroup.macro)?.name}
+                    </div>
+                    <div class="controls">
+                        <!-- svelte-ignore a11y_click_events_have_key_events -->
+                        <!-- svelte-ignore a11y_no_static_element_interactions -->
+                        <i class="fa-solid fa-trash" onclick={() => delete selectedGroup.macro}></i>
+                    </div>
+                {/if}
+            </div>
+        {/if}
         <div class="add-buttons">
             <button type="button" onclick={() => createNewRoll("action")}>
                 {localize("GMDialog.Buttons.ActionLabel")}
@@ -246,26 +269,6 @@
                 {@render counteract(editing)}
             {/if}
         {/if}
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <div
-            class="macro-drop-zone"
-            class:empty={!selectedGroup.macro}
-            ondrop={(e) => handleMacroDrop(e)}
-            data-tooltip="PF2ERequestRolls.GMDialog.Macros.Tooltip"
-        >
-            {#if !selectedGroup.macro}
-                {localize("GMDialog.Macros.DropHere")}
-            {:else}
-                <div class="name">
-                    {fu.fromUuidSync(selectedGroup.macro)?.name}
-                </div>
-                <div class="controls">
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <i class="fa-solid fa-trash" onclick={() => delete selectedGroup.macro}></i>
-                </div>
-            {/if}
-        </div>
     </div>
     <div class="preview">
         {#each requests as request (request.id)}
@@ -600,7 +603,6 @@
             margin-bottom: 0.5em;
 
             &.empty {
-                opacity: 0.75;
                 justify-content: center;
             }
         }
