@@ -3,9 +3,9 @@
     import { fade } from "svelte/transition";
     import dayjs from "dayjs";
     import type { GMDialogContext } from "./gm-dialog.ts";
-    import type { ActionRoll, CheckRoll, CounteractRoll, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
-    import { localize } from "@util/misc.ts";
-    import TraitsSelect from "@module/components/traits/traits-select.svelte";
+    import type { ActionRoll, CheckRoll, CounteractRoll, LabeledValue, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
+    import { localize } from "../../../utils.ts";
+    import TraitsSelect from "../../components/traits/traits-select.svelte";
     import { compressToBase64, getInlineLink, rollToInline } from "../helpers.ts";
     import { getNewGroupData, getNewRollData, rollRequestState } from "./state.svelte.ts";
 
@@ -432,7 +432,7 @@
             creatable={false}
             placeholder={game.i18n.localize("PF2E.SelectLabel")}
             value={roll.traits}
-            onChange={(selections) => selectTraits(selections, roll)}
+            onChange={(selections: LabeledValue[]) => selectTraits(selections, roll)}
         />
     </div>
     {#if roll.slug === "spell-attack"}

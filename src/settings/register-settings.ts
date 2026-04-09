@@ -1,4 +1,4 @@
-import { getSetting } from "src/module/apps/helpers.ts";
+import { getSetting } from "../utils.ts";
 import { CssSettings, cssSettings } from "./data.svelte.ts";
 
 function registerSettings(): void {

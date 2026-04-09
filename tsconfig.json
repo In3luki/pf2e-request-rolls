@@ -1,69 +1,45 @@
 {
-    "compilerOptions": {
-        "target": "ES2022",
-        "module": "NodeNext",
-        "moduleResolution": "NodeNext",
-        "lib": [
-            "ESNext",
-            "ESNext.Array",
-            "ESNext.AsyncIterable",
-            "ESNext.Collection",
-            "ESNext.Iterator",
-            "ESNext.Object",
-            "ESNext.Promise",
-            "DOM",
-            "DOM.Iterable",
-            "DOM.AsyncIterable"
-        ],
-        "noEmit": true,
-        "strict": true,
-        "noFallthroughCasesInSwitch": true,
-        "skipLibCheck": true,
-        "noImplicitOverride": true,
-        "noImplicitReturns": true,
-        "noUnusedLocals": true,
-        "noUnusedParameters": true,
-        "allowImportingTsExtensions": true,
-        "forceConsistentCasingInFileNames": true,
-        "esModuleInterop": true,
-        "sourceMap": true,
-        "isolatedModules": true,
-        "rootDir": ".",
-        "outDir": "dist",
-        "allowUnusedLabels": false,
-        "removeComments": false,
-        "resolveJsonModule": true,
-        "useDefineForClassFields": true,
-        "noErrorTruncation": true,
-        "paths": {
-            "*": ["./*"],
-            "@module/*": [
-                "./src/module/*"
-            ],
-            "@util": [
-                "./src/util/index.ts"
-            ],
-            "@util/*": [
-                "./src/util/*"
-            ],
-            "@pf2e/*": [
-                "./node_modules/foundry-pf2e/*"
-            ]
-        },
-        "types": [
-            "jquery",
-            "node"
-        ],
-        "typeRoots": [
-            "node_modules/@types",
-            "node_modules/foundry-pf2e"
-        ]
-    },
-    "watchOptions": {
-        "fallbackPolling": "dynamicpriority",
-        "excludeDirectories": [
-            "dist",
-            "static"
-        ]
+  "extends": "./pf2e/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "lib": ["ESNext", "DOM"],
+    "types": [
+      "jquery",
+      "node",
+      "tooltipster"
+    ],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./pf2e/types"
+    ],
+    "paths": {
+      "@actor": ["./pf2e/src/module/actor/index.ts"],
+      "@actor/*": ["./pf2e/src/module/actor/*"],
+      "@item": ["./pf2e/src/module/item/index.ts"],
+      "@item/*": ["./pf2e/src/module/item/*"],
+      "@scene": ["./pf2e/src/module/scene/index.ts"],
+      "@scene/*": ["./pf2e/src/module/scene/*"],
+      "@system/*": ["./pf2e/src/module/system/*"],
+      "@module/*": ["./pf2e/src/module/*"],
+      "@scripts/*": ["./pf2e/src/scripts/*"],
+      "@common/*": ["./pf2e/types/foundry/common/*"],
+      "@client/*": ["./pf2e/types/foundry/client/*"],
+      "@util": ["./pf2e/src/util/index.ts"],
+      "@util/*": ["./pf2e/src/util/*"]
     }
+  },
+  "include": [
+    "vite.config.ts",
+    "build",
+    "src",
+    "pf2e/src/global.ts",
+    "pf2e/types/foundry/**/*.d.ts",
+    "pf2e/types/foundry/**/*.d.mts"
+  ],
+  "exclude": ["src/**/*.svelte"],
+  "watchOptions": {
+    "fallbackPolling": "dynamicpriority",
+    "excludeDirectories": ["dist", "static"]
+  }
 }

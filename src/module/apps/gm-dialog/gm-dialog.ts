@@ -1,20 +1,18 @@
-import type {
-    ApplicationConfiguration,
-    ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client/applications/_module.d.mts";
-import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
-import type { ChatMessagePF2e } from "@pf2e/types/index.ts";
+import type { ApplicationConfiguration, ApplicationRenderOptions } from "@client/applications/_module.mjs";
+import type { ApplicationV2 } from "@client/applications/api/_module.mjs";
+import type { ChatMessagePF2e } from "@module/chat-message/document.ts";
+import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "@module/sheet/mixin.svelte.ts";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
-import { adjustDC, dcAdjustments } from "@util/pf2e.ts";
+import { adjustDC, type DCAdjustment } from "@module/dc.ts";
 import * as R from "remeda";
-import { cssSettings } from "src/settings/data.svelte.ts";
-import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
-import { actionData, decompressFromBase64, getSetting, hasNoContent, rollToInline, skillData } from "../helpers.ts";
+import { cssSettings } from "../../../settings/data.svelte.ts";
+import { actionData, decompressFromBase64, hasNoContent, rollToInline, skillData } from "../helpers.ts";
 import { ResultsDialog } from "../results-dialog/results-dialog.ts";
 import { type PlayerSelection, SelectPlayersDialog } from "../select-players-dialog/select-players.ts";
 import type { LabeledValue, RequestGroup, RequestHistory, SocketRollRequest } from "../types.ts";
 import Root from "./gm-dialog.svelte";
 import { updateGMDialogState } from "./state.svelte.ts";
+import { getSetting } from "../../../utils.ts";
 
 class GMDialog extends SvelteApplicationMixin<
     AbstractConstructorOf<ApplicationV2> & { DEFAULT_OPTIONS: DeepPartial<GMDialogConfiguration> }
@@ -238,6 +236,16 @@ class GMDialog extends SvelteApplicationMixin<
                 .map((w) => `${w[0].toLocaleUpperCase("en")}${w.slice(1)}`)
                 .join(" ");
         };
+
+        const dcAdjustments = new Map<DCAdjustment, number>([
+            ["incredibly-easy", -10],
+            ["very-easy", -5],
+            ["easy", -2],
+            ["normal", 0],
+            ["hard", 2],
+            ["very-hard", 5],
+            ["incredibly-hard", 10],
+        ]);
 
         return R.entries(CONFIG.PF2E.dcAdjustments)
             .filter(([value, _]) => value !== "normal")

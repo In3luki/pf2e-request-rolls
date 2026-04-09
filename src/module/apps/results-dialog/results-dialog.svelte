@@ -3,7 +3,7 @@
     import type { ResultsDialogContext } from "./results-dialog.ts";
     import { getInlineLink } from "../helpers.ts";
     import type { CounteractRoll } from "../types.ts";
-    import type { DegreeOfSuccessString } from "foundry-pf2e";
+    import type { DegreeOfSuccessString } from "@system/degree-of-success.ts";
     import { resultState } from "./state.svelte.ts";
 
     const props: ResultsDialogContext = $props();

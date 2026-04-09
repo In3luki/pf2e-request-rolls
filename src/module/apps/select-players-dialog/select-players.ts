@@ -2,9 +2,9 @@ import type {
     ApplicationClosingOptions,
     ApplicationConfiguration,
     ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client/applications/_module.d.mts";
-import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
-import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
+} from "@client/applications/_module.mjs";
+import type { ApplicationV2 } from "@client/applications/api/_module.mjs";
+import { SvelteApplicationMixin, type SvelteApplicationRenderContext } from "@module/sheet/mixin.svelte.ts";
 import Root from "./select-players.svelte";
 
 class SelectPlayersDialog extends SvelteApplicationMixin<

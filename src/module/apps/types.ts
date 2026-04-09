@@ -1,5 +1,5 @@
-import { SaveType } from "@pf2e/types/index.js";
-import type { CssSettings } from "src/settings/data.svelte.ts";
+import type { SaveType } from "@actor/types.ts";
+import type { CssSettings } from "../../settings/data.svelte.ts";
 
 interface BaseRoll {
     id: string;

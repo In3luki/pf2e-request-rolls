@@ -1,9 +1,6 @@
-import {
-    type ChatContextFlag,
-    type ChatMessagePF2e,
-    type CheckContextChatFlag,
-    type MacroPF2e,
-} from "@pf2e/types/index.ts";
+import type { ChatContextFlag, CheckContextChatFlag } from "@module/chat-message/data.ts";
+import type { ChatMessagePF2e } from "@module/chat-message/document.ts";
+import type { MacroPF2e } from "@module/macro.ts";
 import * as R from "remeda";
 import { RequestGroup, RequestRoll, SocketRollRequest } from "../types.ts";
 import type { ResultsDialogConfiguration, RollResult } from "./results-dialog.ts";

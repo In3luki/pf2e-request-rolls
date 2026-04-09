@@ -2,13 +2,14 @@ import type {
     ApplicationClosingOptions,
     ApplicationConfiguration,
     ApplicationRenderOptions,
-} from "@pf2e/types/foundry/client/applications/_module.d.mts";
-import type ApplicationV2 from "@pf2e/types/foundry/client/applications/api/application.d.mts";
-import type { ChatMessagePF2e, DegreeOfSuccessString } from "@pf2e/types/index.ts";
-import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "../../svelte-mixin/mixin.svelte.ts";
+} from "@client/applications/_module.mjs";
+import type { ApplicationV2 } from "@client/applications/api/_module.mjs";
+import { SvelteApplicationMixin, SvelteApplicationRenderContext } from "@module/sheet/mixin.svelte.ts";
+import type { DegreeOfSuccessString } from "@system/degree-of-success.ts";
 import type { RequestRoll, SocketRollRequest } from "../types.ts";
 import Root from "./results-dialog.svelte";
 import { findResultMessage, prepareResults, tryDeleteResult } from "./state.svelte.ts";
+import { HooksOn } from "../../../utils.ts";
 
 class ResultsDialog extends SvelteApplicationMixin<
     AbstractConstructorOf<ApplicationV2> & { DEFAULT_OPTIONS: DeepPartial<ResultsDialogConfiguration> }
@@ -51,10 +52,10 @@ class ResultsDialog extends SvelteApplicationMixin<
     ): Promise<void> {
         super._preFirstRender(context, options);
 
-        this.#hooks.createChatMessage = Hooks.on("createChatMessage", (message: ChatMessagePF2e) => {
+        this.#hooks.createChatMessage = HooksOn("createChatMessage", (message) => {
             findResultMessage(message, this.options.request);
         });
-        this.#hooks.deleteChatMessage = Hooks.on("deleteChatMessage", (message: ChatMessagePF2e) => {
+        this.#hooks.deleteChatMessage = HooksOn("deleteChatMessage", (message) => {
             tryDeleteResult(message, this.options.request);
         });
     }

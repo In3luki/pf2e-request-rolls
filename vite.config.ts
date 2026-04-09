@@ -5,8 +5,6 @@ import path from "path";
 import * as Vite from "vite";
 import checker from "vite-plugin-checker";
 import { viteStaticCopy } from "vite-plugin-static-copy";
-import tsconfigPaths from "vite-tsconfig-paths";
-import packageJSON from "./package.json" with { type: "json" };
 import moduleJSON from "./static/module.json" with { type: "json" };
 
 const EN_JSON = JSON.parse(fs.readFileSync("./static/lang/en.json", { encoding: "utf-8" }));
@@ -23,7 +21,6 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
     };
     const plugins = [
         checker({ typescript: true }),
-        tsconfigPaths({ loose: true }),
         sveltePlugin({
             preprocess: command === "serve" ? hmrPreprocess : undefined,
         }),
@@ -116,6 +113,18 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
         fs.writeFileSync("./vendor.mjs", `/** ${message} */\n`);
     }
 
+    const codeSplitting: Vite.Rolldown.CodeSplittingOptions =
+        buildMode === "production"
+            ? {
+                  groups: [
+                      {
+                          name: "vendor",
+                          test: /node_modules/,
+                      },
+                  ],
+              }
+            : {};
+
     return {
         base: command === "build" ? "./" : `/${packagePath}`,
         publicDir: "static",
@@ -125,6 +134,7 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
             fu: "foundry.utils",
         },
         esbuild: { keepNames: true },
+        resolve: { tsconfigPaths: true },
         build: {
             outDir,
             emptyOutDir: true,
@@ -141,9 +151,7 @@ const config = Vite.defineConfig(({ command, mode }): Vite.UserConfig => {
                     assetFileNames: "styles/request-rolls.css",
                     chunkFileNames: "[name].mjs",
                     entryFileNames: "main.mjs",
-                    manualChunks: {
-                        vendor: buildMode === "production" ? Object.keys(packageJSON.dependencies) : [],
-                    },
+                    codeSplitting,
                 },
                 watch: { buildDelay: 100 },
             },

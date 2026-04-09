@@ -1,9 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import type { ActorPF2e, TokenPF2e } from "foundry-pf2e";
+    import type { ActorPF2e } from "@actor";
+    import type { TokenPF2e } from "@module/canvas/index.ts";
     import type { RollDialogContext } from "./roll-dialog.ts";
     import { getInlineLink } from "../helpers.ts";
-    import { cssSettings } from "src/settings/data.svelte.ts";
+    import { cssSettings } from "../../../settings/data.svelte.ts";
+    import { HooksOn } from "../../../utils.ts";
 
     const props: RollDialogContext = $props();
     const groups = $state(props.request.groups);
@@ -11,7 +13,7 @@
     let actor: ActorPF2e | null = $state(canvas.tokens.controlled.at(0)?.actor ?? game.user.character);
 
     onMount(() => {
-        const hookId = Hooks.on("controlToken", (token: TokenPF2e) => {
+        const hookId = HooksOn("controlToken", (token: TokenPF2e) => {
             actor = token.actor ?? game.user.character;
         });
 

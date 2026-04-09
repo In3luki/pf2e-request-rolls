@@ -1,4 +1,6 @@
-import type { Action, ActionVariant, ActorPF2e, ZeroToFour } from "@pf2e/types/index.ts";
+import type { ActorPF2e } from "@actor";
+import type { Action, ActionVariant } from "@actor/actions/types.ts";
+import type { ZeroToFour } from "@module/data.ts";
 import { htmlQuery } from "@util";
 import { signedInteger, sortStringRecord } from "@util/misc.ts";
 import * as R from "remeda";
@@ -12,7 +14,6 @@ import type {
     MinifiedCounteractRoll,
     MinifiedRequestGroup,
     RequestGroup,
-    RequestHistory,
     RequestRoll,
 } from "./types.ts";
 
@@ -148,28 +149,6 @@ function rollToInline({ roll, requestId, requestOptions = true }: GetInlineLinkO
     }
 }
 
-function getSetting(name: "pf2e-request-rolls", setting: "history"): RequestHistory[];
-function getSetting(name: "pf2e-request-rolls", setting: "playSoundInBackground"): boolean;
-function getSetting(name: "pf2e-request-rolls", setting: "gmDialog.alwaysAddName"): boolean;
-function getSetting(name: "pf2e-request-rolls", setting: "gmDialog.autoClose"): boolean;
-function getSetting(name: "pf2e-request-rolls", setting: "showResultsDialog"): boolean;
-function getSetting(name: "pf2e-request-rolls", setting: "css.GroupContainer"): string;
-function getSetting(name: "pf2e-request-rolls", setting: "css.GroupHeader"): string;
-function getSetting(name: "pf2e-request-rolls", setting: "css.OuterContainer"): string;
-function getSetting(name: "pf2e-request-rolls", setting: "css.RollContainer"): string;
-function getSetting(name: string, setting: string): unknown {
-    return game.settings.get(name, setting);
-}
-
-async function setSetting(
-    name: "pf2e-request-rolls",
-    setting: "history",
-    value: RequestGroup[],
-): Promise<RequestHistory[]>;
-async function setSetting(name: string, setting: string, value: unknown): Promise<unknown> {
-    return game.settings.set(name, setting, value);
-}
-
 function getOptions({ roll, requestId, requestOptions = true }: GetInlineLinkOptions): string[] {
     if (!requestOptions) return [];
     const options: string[] = [];
@@ -299,18 +278,18 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
     writer.close();
-    const result = await new Response(cs.readable).arrayBuffer();
+    const result = await new Response(cs.readable).bytes();
 
-    return bufferToBase64(result);
+    return result.toBase64();
 }
 
 async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
-    const byteArray = await base64ToArrayBuffer(string);
+    const byteArray = Uint8Array.fromBase64(string) as Uint8Array<ArrayBuffer>;
     const cs = new DecompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);
     writer.close();
-    const result = await new Response(cs.readable).arrayBuffer();
+    const result = await new Response(cs.readable).bytes();
     const mGroups: MinifiedRequestGroup[] = JSON.parse(new TextDecoder().decode(result));
 
     const groups: RequestGroup[] = [];
@@ -365,31 +344,6 @@ async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
     return groups;
 }
 
-async function base64ToArrayBuffer(base64: string): Promise<ArrayBuffer> {
-    const dataUrl = "data:application/octet-binary;base64," + base64;
-    const res = await fetch(dataUrl);
-    const buffer = await res.arrayBuffer();
-    return buffer;
-}
-
-async function bufferToBase64(buffer: ArrayBuffer): Promise<string> {
-    const blob = new Blob([buffer], { type: "application/octet-binary" });
-    const fileReader = new FileReader();
-    const { promise, resolve, reject } = Promise.withResolvers<string>();
-    fileReader.onload = () => {
-        const dataUrl = fileReader.result;
-        if (typeof dataUrl === "string") {
-            resolve(dataUrl.slice(dataUrl.indexOf(",") + 1));
-        }
-        reject("Failed to convert ArraBuffer to base64 string!");
-    };
-    fileReader.onerror = () => {
-        reject("Error while converting the buffer to a base64 string!");
-    };
-    fileReader.readAsDataURL(blob);
-    return promise;
-}
-
 interface GetInlineLinkOptions {
     roll: RequestRoll;
     requestOptions?: boolean;
@@ -401,11 +355,9 @@ export {
     compressToBase64,
     decompressFromBase64,
     getInlineLink,
-    getSetting,
     hasNoContent,
     prepareActionData,
     prepareSkillData,
     rollToInline,
-    setSetting,
     skillData,
 };

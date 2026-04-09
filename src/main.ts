@@ -1,11 +1,12 @@
-import { getSetting, prepareActionData, prepareSkillData } from "@module/apps/helpers.ts";
-import { GMDialog, RollDialog } from "@module/apps/index.ts";
-import type { SocketRequest } from "@module/apps/types.ts";
+import { prepareActionData, prepareSkillData } from "./module/apps/helpers.ts";
+import { GMDialog, RollDialog } from "./module/apps/index.ts";
+import type { SocketRequest } from "./module/apps/types.ts";
 import { htmlClosest } from "@util";
 import * as R from "remeda";
 import { updateDragState } from "./module/apps/gm-dialog/state.svelte.ts";
 import { refreshCSS, registerSettings } from "./settings/register-settings.ts";
 import "./styles/global.scss";
+import { getSetting, HooksOn } from "./utils.ts";
 
 globalThis.requestRolls = {
     GMDialog,
@@ -64,7 +65,7 @@ Hooks.once("pf2e.systemReady", () => {
     prepareSkillData();
 });
 
-Hooks.on("getChatMessageContextOptions", (_chatlog, options) => {
+HooksOn("getChatMessageContextOptions", (_chatlog, options) => {
     options.unshift({
         name: "PF2ERequestRolls.ContextMenuLabel",
         icon: '<i class="fa-solid fa-dice"></i>',
