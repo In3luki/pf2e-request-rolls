@@ -1,14 +1,14 @@
 <script lang="ts">
-    import { onMount } from "svelte";
     import type { ActorPF2e } from "@actor";
     import type { TokenPF2e } from "@module/canvas/index.ts";
-    import type { RollDialogContext } from "./roll-dialog.ts";
-    import { getInlineLink } from "../helpers.ts";
+    import { onMount } from "svelte";
     import { cssSettings } from "../../../settings/data.svelte.ts";
     import { HooksOn } from "../../../utils.ts";
+    import { getInlineLink } from "../helpers.ts";
+    import type { RollDialogContext } from "./roll-dialog.ts";
 
     const props: RollDialogContext = $props();
-    const groups = $state(props.request.groups);
+    const groups = $derived(props.request.groups);
     const rolled: string[] = $state([]);
     let actor: ActorPF2e | null = $state(canvas.tokens.controlled.at(0)?.actor ?? game.user.character);
 

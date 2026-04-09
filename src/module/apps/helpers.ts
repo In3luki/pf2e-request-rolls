@@ -284,7 +284,7 @@ async function compressToBase64(groups: RequestGroup[]): Promise<string> {
 }
 
 async function decompressFromBase64(string: string): Promise<RequestGroup[]> {
-    const byteArray = Uint8Array.fromBase64(string) as Uint8Array<ArrayBuffer>;
+    const byteArray = Uint8Array.fromBase64(string);
     const cs = new DecompressionStream("gzip");
     const writer = cs.writable.getWriter();
     writer.write(byteArray);

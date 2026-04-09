@@ -72,7 +72,7 @@ function findResultMessage(message: ChatMessagePF2e, request: SocketRollRequest,
 
         const macro = fu.fromUuidSync<MacroPF2e>(macroUUID);
         if (!macro) {
-            const text = game.i18n.format("PF2ERequestRolls.GMDialog.Macros.Missing", { uuid: macroUUID });
+            const text = game.i18n.localize("PF2ERequestRolls.GMDialog.Macros.Missing", { uuid: macroUUID });
             ui.notifications.warn(text, { console: false });
             return;
         }

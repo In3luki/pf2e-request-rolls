@@ -1,12 +1,20 @@
 <script lang="ts">
+    import dayjs from "dayjs";
     import { untrack } from "svelte";
     import { fade } from "svelte/transition";
-    import dayjs from "dayjs";
-    import type { GMDialogContext } from "./gm-dialog.ts";
-    import type { ActionRoll, CheckRoll, CounteractRoll, LabeledValue, RequestGroup, RequestHistory, RequestRoll } from "../types.ts";
     import { localize } from "../../../utils.ts";
     import TraitsSelect from "../../components/traits/traits-select.svelte";
     import { compressToBase64, getInlineLink, rollToInline } from "../helpers.ts";
+    import type {
+        ActionRoll,
+        CheckRoll,
+        CounteractRoll,
+        LabeledValue,
+        RequestGroup,
+        RequestHistory,
+        RequestRoll,
+    } from "../types.ts";
+    import type { GMDialogContext } from "./gm-dialog.ts";
     import { getNewGroupData, getNewRollData, rollRequestState } from "./state.svelte.ts";
 
     const props: GMDialogContext = $props();
@@ -447,7 +455,7 @@
                 <option value="ac">{game.i18n.localize("PF2E.ArmorClassLabel")}</option>
                 {#each props.skills.saves as save}
                     <option value={save.value}>
-                        {game.i18n.format("PF2E.InlineCheck.DCWithName", { name: save.label })}
+                        {game.i18n.localize("PF2E.InlineCheck.DCWithName", { name: save.label })}
                     </option>
                 {/each}
             </select>
