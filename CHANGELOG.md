@@ -1,3 +1,13 @@
+## 1.3.0
+
+### New Features
+
+-   Support FoundryVTT 14 and PF2e 8.0
+
+### Translations
+
+-   Update polish translation (@Lioheart) ([#48](https://github.com/In3luki/pf2e-request-rolls/pull/48))
+
 ## 1.2.1
 
 ### Bugfixes
