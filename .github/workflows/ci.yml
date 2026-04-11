@@ -38,6 +38,11 @@ jobs:
         run: |
           npm ci --force
 
+      - name: Install PF2e NPM Deps
+        run: |
+          cd pf2e
+          npm ci
+
       - name: Build
         run: |
           npm run build

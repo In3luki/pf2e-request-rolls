@@ -25,6 +25,9 @@ jobs:
       - name: Build
         run: |
           npm ci --force
+          cd pf2e
+          npm ci
+          cd ..
           npm run build
 
       - name: Update Manifest
