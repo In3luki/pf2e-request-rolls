@@ -29,6 +29,11 @@
             "HistoryLabel": "Historia",
             "Label": "Etykieta",
             "LabelPlaceholder": "Wprowadź opcjonalną etykietę",
+            "Macros": {
+                "DropHere": "Upuść makro tutaj",
+                "Tooltip": "To makro zostanie wykonane dla każdego wyniku rzutu. Kontekst makra będzie zawierał obiekt <strong>rrData</strong>, który zawiera informacje o żądanym rzucie, rzucającym i wyniku rzutu.",
+                "Missing": "Brakuje makra z identyfikatorem UUID {uuid}!"
+            },
             "NoActivePlayersWarning": "Nie znaleziono aktywnych graczy!",
             "NoContentWarning": "Żądanie nie zawiera treści!",
             "NoPlayersSelectedWarning": "Nie wybrano żadnych graczy!",
