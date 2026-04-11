@@ -1,3 +1,9 @@
+## 1.3.1
+
+### Housekeeping
+
+-   Bump supported FoundryVTT version to 14.360
+
 ## 1.3.0
 
 ### New Features

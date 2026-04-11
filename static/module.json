@@ -4,8 +4,8 @@
     "description": "Request rolls from players.",
     "version": "1.3.0",
     "compatibility": {
-        "minimum": "14.359",
-        "verified": "14.359",
+        "minimum": "14",
+        "verified": "14.360",
         "maximum": "14"
     },
     "relationships": {
