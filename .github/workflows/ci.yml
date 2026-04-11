@@ -34,7 +34,7 @@ jobs:
       - name: Install NPM Deps
         if: ${{ steps.cache-npm.outputs.cache-hit != 'true' }}
         run: |
-          npm ci
+          npm ci --force
 
       - name: Build
         run: |

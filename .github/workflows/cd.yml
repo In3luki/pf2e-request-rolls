@@ -22,7 +22,7 @@ jobs:
 
       - name: Build
         run: |
-          npm ci
+          npm ci --force
           npm run build
 
       - name: Update Manifest
