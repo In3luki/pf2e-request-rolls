@@ -9,9 +9,9 @@
         "watch": "vite build --watch --mode development",
         "serve": "vite build --mode development && vite serve",
         "link": "tsx ./build/link-foundry.ts",
-        "lint": "eslint && npm run prettier:svelte",
+        "lint": "eslint src build vite.config.ts && npm run prettier:svelte",
         "prettier:svelte": "prettier --check src/**/*.svelte",
-        "lint:fix": "eslint --fix && prettier --write src/styles src/**/*.svelte"
+        "lint:fix": "eslint --fix src build vite.config.ts && prettier --write src/styles src/**/*.svelte"
     },
     "author": "In3luki",
     "license": "./LICENSE",
