@@ -1,3 +1,9 @@
+## 1.3.2
+
+### New Features
+
+-   Add Starfinder2e as compatible system
+
 ## 1.3.1
 
 ### Housekeeping
