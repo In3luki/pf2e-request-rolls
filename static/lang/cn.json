@@ -1,0 +1,90 @@
+{
+    "PF2ERequestRolls": {
+        "ContextMenuLabel": "打开PF2e Request Rolls",
+        "GMDialog": {
+            "Buttons": {
+                "ActionLabel": "+ 动作",
+                "CheckLabel": "+ 检定",
+                "CounteractLabel": "+ 反制检定",
+                "RequestRollsLabel": "请求掷骰",
+                "SendToChatLabel": "发送至聊天",
+                "ShowHistoryLabel": "显示历史掷骰",
+                "ClearAllLabel": "全部清空"
+            },
+            "ConfirmDeleteRoll": "是否删除该掷骰？",
+            "ConfirmDeleteGroup": "是否删除该分组？",
+            "HistoryLabel": "掷骰历史",
+            "GroupHeader": "分组标题",
+            "GroupHeaderPlaceholder": "输入分组标题（可选）",
+            "AddGroupButtonTooltip": "添加分组",
+            "CopyAsInlineLink": "复制为内联链接",
+            "Counteract": {
+                "Label": "反制 ($s)",
+                "DCHint": "如果你正在反制苦难，那么其DC就在该苦难的数据栏中。如果是法术，则使用施法者的DC。此外，GM也可以根据目标效果的等级来计算DC。",
+                "RankHint": "如果效果来自于法术，其环级即为反制环级。否则，将其等级除以二并向上取整以确定其反制环级（最低反制环级为 0）。如果效果的等级不明确且其来源于生物，则将该生物的等级除以二并向上取整作为反制环级。"
+            },
+            "Label": "标签",
+            "LabelPlaceholder": "输入标签（可选）",
+            "SelectPlayersLabel": "选择玩家",
+            "Macros": {
+                "DropHere": "拖拽宏至此",
+                "Tooltip": "这个宏将在每次掷骰结果出现时执行。该宏环境将包含一个<strong>rrData</strong>对象，该对象包含了关于所请求的掷骰、掷骰角色以及掷骰结果的相关信息。",
+                "Missing": "未找到UUID为{uuid}的宏！"
+            },
+            "AdjustmentLabel": "调整",
+            "ConfirmClearAll": "是否清空全部分组与掷骰？",
+            "AgainstLabel": "对抗",
+            "CopyAsInlineLinkConfirmation": "内联链接已复制到剪贴板",
+            "NoPlayersSelectedWarning": "未选择玩家！",
+            "VariantLabel": "变体",
+            "Title": "请求掷骰",
+            "StatisticLabel": "数据",
+            "TargetRankLabel": "目标环级",
+            "NoActivePlayersWarning": "未找到活跃玩家！",
+            "SourceRankLabel": "来源环级",
+            "RequestSuccessful": "已成功发送掷骰请求",
+            "NoContentWarning": "请求没有任何掷骰内容！"
+        },
+        "ResultsDialog": {
+            "CounteractLabel": "反制",
+            "ResultLabel": "结果",
+            "Title": "掷骰结果"
+        },
+        "SelectPlayersDialog": {
+            "SelectAllLabel": "全选",
+            "Title": "选择玩家"
+        },
+        "Settings": {
+            "GMDialog": {
+                "AutoCloseName": "自动关闭GM对话框？",
+                "AlwaysAddNameHint": "始终在检定标签后添加技能或动作的名称。",
+                "AlwaysAddName": "始终添加标签名称",
+                "AutoCloseHint": "是否在掷骰请求发送后自动关闭对话框。"
+            },
+            "ResultsDialog": {
+                "ShowName": "显示结果对话框？",
+                "ShowHint": "是否在掷骰请求发送后显示其结果的对话框。"
+            },
+            "RollDialog": {
+                "AutoCloseName": "自动关闭掷骰对话框？",
+                "AutoCloseHint": "是否在点击掷骰后自动关闭对话框。",
+                "playSoundInBackgroundHint": "当浏览器处于后台运行时，是否在打开新的掷骰对话框时播放提示音。",
+                "playSoundInBackgroundName": "后台运行时播放提示音？"
+            },
+            "OpenSettingsLabel": "打开设置",
+            "CSS": {
+                "GroupContainerName": "分组容器自定义CSS",
+                "GroupContainerHint": "用于掷骰分组容器元素的CSS格式覆写。",
+                "GroupHeaderName": "分组标题自定义CSS",
+                "GroupHeaderHint": "用于掷骰分组标题元素的CSS格式覆写。",
+                "RollContainerName": "掷骰容器自定义CSS",
+                "RollContainerHint": "用于独立掷骰容器元素的CSS格式覆写。",
+                "OuterContainerName": "外部容器自定义CSS",
+                "OuterContainerHint": "用于最外层容器元素的CSS格式覆写。"
+            }
+        },
+        "RollDialog": {
+            "Title": "被请求掷骰"
+        }
+    }
+}
